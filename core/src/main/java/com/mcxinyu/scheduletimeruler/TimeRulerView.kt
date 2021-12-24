@@ -7,8 +7,12 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.util.Log
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.annotation.ColorInt
+import androidx.core.view.GestureDetectorCompat
 import java.util.*
 import kotlin.math.ceil
 import kotlin.properties.Delegates
@@ -18,7 +22,19 @@ import kotlin.properties.Delegates
  */
 open class TimeRulerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
-) : View(context, attrs) {
+) : View(context, attrs), GestureDetector.OnGestureListener,
+    ScaleGestureDetector.OnScaleGestureListener {
+    companion object {
+        val TAG = TimeRulerView::class.java.simpleName
+        const val STATUS_NONE = 0
+        const val STATUS_DOWN = STATUS_NONE + 1
+        const val STATUS_SCROLL = STATUS_DOWN + 1
+        const val STATUS_SCROLL_FLING = STATUS_SCROLL + 1
+        const val STATUS_ZOOM = STATUS_SCROLL_FLING + 1
+    }
+
+    private var gestureDetectorCompat: GestureDetectorCompat? = null
+    private var scaleGestureDetector: ScaleGestureDetector? = null
 
     @ColorInt
     private var tickTextColor: Int
@@ -51,7 +67,7 @@ open class TimeRulerView @JvmOverloads constructor(
     private var showBaseline: Boolean
 
     private lateinit var paint: Paint
-    private lateinit var infoModel: TimeModel
+    private lateinit var timeModel: TimeModel
 
     /**
      * 游标所在位置时间
@@ -68,7 +84,7 @@ open class TimeRulerView @JvmOverloads constructor(
 
     private var tickSpacePixel by Delegates.notNull<Float>()
 
-    private val scaleRatio = 1.0f
+    private var scaleRatio = 1.0f
 
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.TimeRulerView)
@@ -161,18 +177,18 @@ open class TimeRulerView @JvmOverloads constructor(
         paint.isDither = true
         paint.style = Paint.Style.FILL_AND_STROKE
 
-        infoModel = TimeModel()
-        currentTimeValue = infoModel.startTimeValue
+        timeModel = TimeModel()
+        currentTimeValue = timeModel.startTimeValue
     }
 
     override fun onSizeChanged(width: Int, height: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(width, height, oldw, oldh)
 
-        minUnitPixel = maxTickSpace / infoModel.unitTimeValue
+        minUnitPixel = maxTickSpace / timeModel.unitTimeValue
         maxUnitPixel = maxTickSpace
 
         unitPixel = minUnitPixel * scaleRatio
-        tickSpacePixel = infoModel.unitTimeValue * unitPixel
+        tickSpacePixel = timeModel.unitTimeValue * unitPixel
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -221,8 +237,8 @@ open class TimeRulerView @JvmOverloads constructor(
     }
 
     private fun onDrawTick(canvas: Canvas) {
-        val frontTimeRange = currentTimeValue - infoModel.startTimeValue
-        val frontTimeOffset = frontTimeRange % infoModel.unitTimeValue
+        val frontTimeRange = currentTimeValue - timeModel.startTimeValue
+        val frontTimeOffset = frontTimeRange % timeModel.unitTimeValue
         val frontTimeValue = currentTimeValue - frontTimeOffset
         val frontPosition = height * cursorLinePosition - frontTimeOffset * unitPixel
         val frontCount =
@@ -230,8 +246,8 @@ open class TimeRulerView @JvmOverloads constructor(
 
         //从游标线往前画
         for (i in 0 until ceil(frontCount.toDouble()).toInt()) {
-            val timeValue = frontTimeValue - infoModel.unitTimeValue * i
-            if (timeValue < infoModel.startTimeValue) {
+            val timeValue = frontTimeValue - timeModel.unitTimeValue * i
+            if (timeValue < timeModel.startTimeValue) {
                 break
             }
 
@@ -242,14 +258,14 @@ open class TimeRulerView @JvmOverloads constructor(
             onDrawTickText(canvas, x, y, timeValue)
         }
 
-        val backTimeValue = frontTimeValue + infoModel.unitTimeValue
+        val backTimeValue = frontTimeValue + timeModel.unitTimeValue
         val backPosition = frontPosition + tickSpacePixel
         val backCount = height * (1 - cursorLinePosition) / (tickSpacePixel + normalTickWidth)
 
         //从游标线往后画
         for (i in 0 until ceil(backCount.toDouble()).toInt()) {
-            val timeValue = backTimeValue + infoModel.unitTimeValue * i
-            if (timeValue > infoModel.endTimeValue) {
+            val timeValue = backTimeValue + timeModel.unitTimeValue * i
+            if (timeValue > timeModel.endTimeValue) {
                 break
             }
 
@@ -313,7 +329,85 @@ open class TimeRulerView @JvmOverloads constructor(
         }
     }
 
-    companion object {
-        val TAG = TimeRulerView::class.java.simpleName
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        getScaleGestureDetector().onTouchEvent(event)
+        getGestureDetectorCompat().onTouchEvent(event)
+        return super.onTouchEvent(event)
+    }
+
+    protected fun getScaleGestureDetector(): ScaleGestureDetector {
+        return scaleGestureDetector ?: ScaleGestureDetector(context, this)
+    }
+
+    private var status: Int = STATUS_NONE
+
+    override fun onScale(detector: ScaleGestureDetector): Boolean {
+        status = STATUS_ZOOM
+        var scaleFactor = detector.scaleFactor
+        unitPixel *= scaleFactor
+        if (unitPixel > maxUnitPixel) {
+            unitPixel = maxUnitPixel
+            scaleFactor = 1f
+        } else if (unitPixel < minUnitPixel) {
+            unitPixel = minUnitPixel
+            scaleFactor = 1f
+        }
+
+        onScale(timeModel, unitPixel)
+
+        scaleRatio *= scaleFactor
+
+        tickSpacePixel = timeModel.unitTimeValue * unitPixel
+
+        invalidate()
+
+        return unitPixel < maxUnitPixel || unitPixel > minUnitPixel
+    }
+
+    protected fun onScale(timeModel: TimeModel, unitPixel: Float) {
+
+    }
+
+    override fun onScaleBegin(detector: ScaleGestureDetector) = true
+
+    override fun onScaleEnd(detector: ScaleGestureDetector) {
+    }
+
+    protected fun getGestureDetectorCompat(): GestureDetectorCompat {
+        return gestureDetectorCompat ?: GestureDetectorCompat(context, this)
+    }
+
+    override fun onDown(e: MotionEvent?): Boolean {
+        return true
+    }
+
+    override fun onShowPress(e: MotionEvent?) {
+    }
+
+    override fun onSingleTapUp(e: MotionEvent?) = false
+
+    override fun onScroll(
+        e1: MotionEvent?,
+        e2: MotionEvent?,
+        distanceX: Float,
+        distanceY: Float
+    ): Boolean {
+        return true
+    }
+
+    override fun onLongPress(e: MotionEvent?) {
+    }
+
+    override fun onFling(
+        e1: MotionEvent?,
+        e2: MotionEvent?,
+        velocityX: Float,
+        velocityY: Float
+    ): Boolean {
+        return true
+    }
+
+    override fun computeScroll() {
+        super.computeScroll()
     }
 }
