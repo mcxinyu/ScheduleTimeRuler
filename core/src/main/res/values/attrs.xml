@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="TimeRulerView">
+        <!--region 刻度尺基线-->
+        <!--是否显示刻度尺基线-->
+        <attr name="trv_showBaseline" format="boolean" />
+        <!--刻度尺基线相对view height的位置 0.0f～ 1.0f -->
+        <attr name="trv_baselinePosition" format="float" />
+        <attr name="trv_baselineWidth" format="dimension|reference" />
+        <!--刻度尺基线颜色-->
+        <attr name="trv_baselineColor" format="color|reference" />
+        <!--endregion-->
+
+        <!--region 游标线-->
+        <!--是否显示游标线-->
+        <attr name="trv_showCursorLine" format="boolean" />
+        <!--游标相对view width的位置  0.0f～ 1.0f -->
+        <attr name="trv_cursorLinePosition" format="float" />
+        <attr name="trv_cursorLineWidth" format="dimension|reference" />
+        <attr name="trv_cursorLineColor" format="color|reference" />
+        <!--endregion-->
+
+        <!--region 关键刻度-->
+        <attr name="trv_keyTickHeight" format="dimension|reference" />
+        <attr name="trv_keyTickWidth" format="dimension|reference" />
+        <attr name="trv_keyTickColor" format="color|reference" />
+        <!--endregion-->
+
+        <!--region 普通刻度-->
+        <attr name="trv_normalTickHeight" format="float" />
+        <attr name="trv_normalTickWidth" format="float" />
+        <attr name="trv_normalTickColor" format="color|reference" />
+        <!--endregion-->
+
+        <attr name="trv_showTick" format="boolean" />
+        <attr name="trv_maxTickSpace" format="dimension|reference" />
+
+        <!--region 刻度文本-->
+        <attr name="trv_showTickText" format="boolean" />
+        <attr name="trv_tickTextSize" format="dimension|reference" />
+        <attr name="trv_tickTextColor" format="color|reference" />
+        <!--endregion-->
+    </declare-styleable>
+</resources>
