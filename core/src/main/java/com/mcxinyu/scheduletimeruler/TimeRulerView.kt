@@ -213,14 +213,14 @@ open class TimeRulerView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        drawBaseline(canvas)
+        onDrawBaseline(canvas)
 
-        drawTick(canvas)
+        onDrawTick(canvas)
 
-        drawCursor(canvas)
+        onDrawCursor(canvas)
     }
 
-    private fun drawTick(canvas: Canvas) {
+    private fun onDrawTick(canvas: Canvas) {
         val frontTimeRange = currentTimeValue - infoModel.startTimeValue
         val frontTimeOffset = frontTimeRange % infoModel.unitTimeValue
         val frontTimeValue = currentTimeValue - frontTimeOffset
@@ -238,8 +238,8 @@ open class TimeRulerView @JvmOverloads constructor(
             val x = width * baselinePosition - normalTickHeight
             val y = frontPosition - tickSpacePixel * i
 
-            drawTickLine(canvas, x, y)
-            drawTickText(canvas, x, y, timeValue)
+            onDrawTickLine(canvas, x, y)
+            onDrawTickText(canvas, x, y, timeValue)
         }
 
         val backTimeValue = frontTimeValue + infoModel.unitTimeValue
@@ -256,12 +256,12 @@ open class TimeRulerView @JvmOverloads constructor(
             val x = width * baselinePosition - normalTickHeight
             val y = backPosition + tickSpacePixel * i
 
-            drawTickLine(canvas, x, y)
-            drawTickText(canvas, x, y, timeValue)
+            onDrawTickLine(canvas, x, y)
+            onDrawTickText(canvas, x, y, timeValue)
         }
     }
 
-    protected fun drawTickText(canvas: Canvas, x: Float, y: Float, timeValue: Long) {
+    protected fun onDrawTickText(canvas: Canvas, x: Float, y: Float, timeValue: Long) {
         if (showTickText) {
             paint.color = tickTextColor
             paint.textAlign = Paint.Align.LEFT
@@ -279,7 +279,7 @@ open class TimeRulerView @JvmOverloads constructor(
         }
     }
 
-    protected fun drawTickLine(canvas: Canvas, x: Float, y: Float) {
+    protected fun onDrawTickLine(canvas: Canvas, x: Float, y: Float) {
         if (showTick) {
             paint.color = normalTickColor
             paint.strokeWidth = normalTickWidth
@@ -288,7 +288,7 @@ open class TimeRulerView @JvmOverloads constructor(
         }
     }
 
-    protected fun drawCursor(canvas: Canvas) {
+    protected fun onDrawCursor(canvas: Canvas) {
         if (showCursorLine) {
             paint.color = cursorLineColor
             paint.strokeWidth = baselineWidth
@@ -298,7 +298,7 @@ open class TimeRulerView @JvmOverloads constructor(
         }
     }
 
-    protected fun drawBaseline(canvas: Canvas) {
+    protected fun onDrawBaseline(canvas: Canvas) {
         if (showBaseline) {
             paint.color = baselineColor
             paint.strokeWidth = baselineWidth
