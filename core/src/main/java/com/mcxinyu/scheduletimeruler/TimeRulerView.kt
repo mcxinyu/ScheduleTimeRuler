@@ -1,5 +1,6 @@
 package com.mcxinyu.scheduletimeruler
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -11,6 +12,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import android.widget.Scroller
 import androidx.annotation.ColorInt
 import androidx.core.view.GestureDetectorCompat
 import java.util.*
@@ -33,8 +35,10 @@ open class TimeRulerView @JvmOverloads constructor(
         const val STATUS_ZOOM = STATUS_SCROLL_FLING + 1
     }
 
-    private var gestureDetectorCompat: GestureDetectorCompat? = null
-    private var scaleGestureDetector: ScaleGestureDetector? = null
+    private var scrollHappened: Boolean = false
+    private var gestureDetectorCompat = GestureDetectorCompat(context, this)
+    private var scaleGestureDetector = ScaleGestureDetector(context, this)
+    private var scroller = Scroller(context)
 
     @ColorInt
     private var tickTextColor: Int
@@ -329,14 +333,11 @@ open class TimeRulerView @JvmOverloads constructor(
         }
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        getScaleGestureDetector().onTouchEvent(event)
-        getGestureDetectorCompat().onTouchEvent(event)
-        return super.onTouchEvent(event)
-    }
-
-    protected fun getScaleGestureDetector(): ScaleGestureDetector {
-        return scaleGestureDetector ?: ScaleGestureDetector(context, this)
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        scaleGestureDetector.onTouchEvent(event)
+        gestureDetectorCompat.onTouchEvent(event)
+        return true
     }
 
     private var status: Int = STATUS_NONE
@@ -373,41 +374,86 @@ open class TimeRulerView @JvmOverloads constructor(
     override fun onScaleEnd(detector: ScaleGestureDetector) {
     }
 
-    protected fun getGestureDetectorCompat(): GestureDetectorCompat {
-        return gestureDetectorCompat ?: GestureDetectorCompat(context, this)
-    }
-
-    override fun onDown(e: MotionEvent?): Boolean {
+    override fun onDown(e: MotionEvent): Boolean {
+        if (status == STATUS_SCROLL_FLING) {
+            scroller.forceFinished(true)
+        } else {
+            scrollHappened = false
+        }
+        status = STATUS_DOWN
         return true
     }
 
-    override fun onShowPress(e: MotionEvent?) {
+    override fun onShowPress(e: MotionEvent) {
     }
 
-    override fun onSingleTapUp(e: MotionEvent?) = false
-
-    override fun onScroll(
-        e1: MotionEvent?,
-        e2: MotionEvent?,
-        distanceX: Float,
-        distanceY: Float
-    ): Boolean {
-        return true
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
+        return performClick()
     }
 
-    override fun onLongPress(e: MotionEvent?) {
+    override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float):
+            Boolean {
+        if (e2.pointerCount > 1) {
+            return false
+        }
+        if (scaleGestureDetector.isInProgress) {
+            return false
+        }
+        if (!scrollHappened) {
+            scrollHappened = true
+            return true
+        }
+
+        status = STATUS_SCROLL
+
+        val increment = distanceY / unitPixel
+        currentTimeValue += increment.toLong()
+
+        var result = true
+        if (currentTimeValue > timeModel.endTimeValue) {
+            currentTimeValue = timeModel.endTimeValue
+            result = false
+        } else if (currentTimeValue < timeModel.startTimeValue) {
+            currentTimeValue = timeModel.startTimeValue
+            result = false
+        }
+
+        invalidate()
+
+        return result
     }
 
-    override fun onFling(
-        e1: MotionEvent?,
-        e2: MotionEvent?,
-        velocityX: Float,
-        velocityY: Float
-    ): Boolean {
+    override fun onLongPress(e: MotionEvent) {
+    }
+
+    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float):
+            Boolean {
+        status = STATUS_SCROLL_FLING
+
+        val startY = ((currentTimeValue - timeModel.startTimeValue) * unitPixel).toInt()
+        val maxY = ((timeModel.endTimeValue - timeModel.startTimeValue) * unitPixel).toInt()
+
+        scroller.fling(0, startY, 0, (-velocityY).toInt(), 0, 0, 0, maxY)
+
+        invalidate()
+
         return true
     }
 
     override fun computeScroll() {
-        super.computeScroll()
+        if (scroller.computeScrollOffset()) {
+            val currY = scroller.currY
+            currentTimeValue = timeModel.startTimeValue + (currY / unitPixel).toLong()
+            if (currentTimeValue > timeModel.endTimeValue) {
+                currentTimeValue = timeModel.endTimeValue
+            } else if (currentTimeValue < timeModel.startTimeValue) {
+                currentTimeValue = timeModel.startTimeValue
+            }
+            invalidate()
+        } else {
+            if (status == STATUS_SCROLL_FLING) {
+                status = STATUS_DOWN
+            }
+        }
     }
 }
