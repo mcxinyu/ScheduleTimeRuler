@@ -17,7 +17,7 @@ import androidx.annotation.ColorInt
 import androidx.core.view.GestureDetectorCompat
 import java.util.*
 import kotlin.math.ceil
-import kotlin.math.max
+import kotlin.math.log
 import kotlin.properties.Delegates
 
 /**
@@ -66,6 +66,9 @@ open class TimeRulerView @JvmOverloads constructor(
     private var showCursorLine: Boolean
 
     @ColorInt
+    private var baselineOutDayColor: Int
+
+    @ColorInt
     private var baselineColor: Int
     private var baselineWidth: Float
     private var baselinePosition: Float
@@ -99,6 +102,11 @@ open class TimeRulerView @JvmOverloads constructor(
             typedArray.getFloat(R.styleable.TimeRulerView_trv_baselinePosition, 0.3f)
         baselineColor =
             typedArray.getColor(R.styleable.TimeRulerView_trv_baselineColor, Color.LTGRAY)
+        baselineOutDayColor =
+            typedArray.getColor(
+                R.styleable.TimeRulerView_trv_baselineOutDayColor,
+                Color.parseColor("#FFFAFAFA")
+            )
         baselineWidth = typedArray.getDimension(
             R.styleable.TimeRulerView_trv_baselineWidth,
             1.toPx(context)
@@ -250,14 +258,21 @@ open class TimeRulerView @JvmOverloads constructor(
             height * cursorLinePosition / (tickSpacePixel + normalTickWidth)
 
         //从游标线往前画
-        for (i in 0 until ceil(frontCount.toDouble()).toInt()) {
+        for (i in 0..ceil(frontCount.toDouble()).toInt()) {
+            val x = width * baselinePosition - normalTickHeight
+            val y = frontPosition - tickSpacePixel * i
+
             val timeValue = frontTimeValue - timeModel.unitTimeValue * i
+            Log.d(TAG, "timeValue $timeValue timeModel.startTimeValue ${timeModel.startTimeValue}")
+            if (timeValue <= timeModel.startTimeValue) {
+                if (y > 0) {
+                    onDrawFrontDay(canvas, 0f, 0f, width.toFloat(), y)
+                }
+            }
+
             if (timeValue < timeModel.startTimeValue) {
                 break
             }
-
-            val x = width * baselinePosition - normalTickHeight
-            val y = frontPosition - tickSpacePixel * i
 
             onDrawTickLine(canvas, x, y)
             onDrawTickText(canvas, x, y, timeValue)
@@ -278,9 +293,56 @@ open class TimeRulerView @JvmOverloads constructor(
             onDrawTickText(canvas, x, y, timeValue)
 
             if (timeValue > timeModel.endTimeValue) {
+                if (y < height) {
+                    onDrawBackDay(canvas, 0f, y, width.toFloat(), height.toFloat())
+                }
                 break
             }
         }
+    }
+
+    protected fun onDrawBackDay(canvas: Canvas, x0: Float, y0: Float, x1: Float, y1: Float) {
+        val rectText = Rect()
+        paint.getTextBounds("23:59", 0, "23:59".length, rectText)
+
+        //region plan1
+//        paint.color = -0x1000000
+//        val rect = Rect(x0.toInt(), y0.toInt(), x1.toInt(), y1.toInt() + rectText.height() / 2)
+//        canvas.drawRect(rect, paint)
+        //endregion
+
+        //region plan2
+        paint.color = baselineOutDayColor
+        val rect2 = Rect(
+            (width * baselinePosition).toInt() - 1,
+            (y0 + keyTickWidth).toInt(),
+            (width * baselinePosition + baselineWidth).toInt() + 1,
+            y1.toInt()
+        )
+        canvas.drawRect(rect2, paint)
+        //endregion
+    }
+
+    protected fun onDrawFrontDay(canvas: Canvas, x0: Float, y0: Float, x1: Float, y1: Float) {
+        val rectText = Rect()
+        paint.getTextBounds("00:00", 0, "00:00".length, rectText)
+
+        //region plan1
+//        paint.color = -0x1000000
+//        val rect = Rect(x0.toInt(), y0.toInt(), x1.toInt(), y1.toInt() - rectText.height() / 2)
+//        canvas.drawRect(rect, paint)
+        //endregion
+
+        //region plan2
+        paint.color = baselineOutDayColor
+        val rect2 = Rect(
+            (width * baselinePosition).toInt() - 1,
+            0,
+            (width * baselinePosition + baselineWidth).toInt() + 1,
+            (y1 - keyTickWidth).toInt()
+        )
+        canvas.drawRect(rect2, paint)
+        //endregion
     }
 
     protected fun onDrawTickText(canvas: Canvas, x: Float, y: Float, timeValue: Long) {
@@ -290,7 +352,6 @@ open class TimeRulerView @JvmOverloads constructor(
             paint.textSize = tickTextSize
 
             val text = simpleDateFormat.format(timeValue)
-            Log.d(TAG, "simpleDateFormat2.format(timeValue) ${simpleDateFormat2.format(timeValue)}")
 
             val rect = Rect()
             paint.getTextBounds(text, 0, text.length, rect)
@@ -313,7 +374,7 @@ open class TimeRulerView @JvmOverloads constructor(
     protected fun onDrawCursor(canvas: Canvas) {
         if (showCursorLine) {
             paint.color = cursorLineColor
-            paint.strokeWidth = baselineWidth
+            paint.strokeWidth = cursorLineWidth
             val top = height * cursorLinePosition
             canvas.drawLine(0f, top, width.toFloat(), top, paint)
             paint.strokeWidth = 1f
@@ -333,15 +394,14 @@ open class TimeRulerView @JvmOverloads constructor(
     protected fun onDrawBaseline(canvas: Canvas) {
         if (showBaseline) {
             paint.color = baselineColor
-            paint.strokeWidth = baselineWidth
-            canvas.drawLine(
-                width * baselinePosition,
-                0f,
-                width * baselinePosition,
-                height.toFloat(),
-                paint
+
+            val rect = Rect(
+                (width * baselinePosition).toInt(),
+                0,
+                (width * baselinePosition + baselineWidth).toInt(),
+                height
             )
-            paint.strokeWidth = 1f
+            canvas.drawRect(rect, paint)
         }
     }
 

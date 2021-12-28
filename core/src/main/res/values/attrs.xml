@@ -9,6 +9,7 @@
         <attr name="trv_baselineWidth" format="dimension|reference" />
         <!--刻度尺基线颜色-->
         <attr name="trv_baselineColor" format="color|reference" />
+        <attr name="trv_baselineOutDayColor" format="color|reference" />
         <!--endregion-->
 
         <!--region 游标线-->
