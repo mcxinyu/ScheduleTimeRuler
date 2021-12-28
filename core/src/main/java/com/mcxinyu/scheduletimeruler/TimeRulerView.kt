@@ -27,72 +27,64 @@ open class TimeRulerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : View(context, attrs), GestureDetector.OnGestureListener,
     ScaleGestureDetector.OnScaleGestureListener {
-    companion object {
-        val TAG = TimeRulerView::class.java.simpleName
-        const val STATUS_NONE = 0
-        const val STATUS_DOWN = STATUS_NONE + 1
-        const val STATUS_SCROLL = STATUS_DOWN + 1
-        const val STATUS_SCROLL_FLING = STATUS_SCROLL + 1
-        const val STATUS_ZOOM = STATUS_SCROLL_FLING + 1
-    }
+
+    @ColorInt
+    protected var tickTextColor: Int
+    protected var tickTextSize: Float
+    protected var showTickText: Boolean
+
+    protected var showTick: Boolean
+    protected var maxTickSpace: Float
+
+    @ColorInt
+    protected var normalTickColor: Int
+    protected var normalTickWidth: Float
+    protected var normalTickHeight: Float
+
+    @ColorInt
+    protected var keyTickColor: Int
+    protected var keyTickWidth: Float
+    protected var keyTickHeight: Float
+
+    @ColorInt
+    protected var cursorLineColor: Int
+    protected var cursorLineWidth: Float
+    protected var cursorLinePosition: Float
+    protected var showCursorLine: Boolean
+
+    @ColorInt
+    protected var baselineOutDayColor: Int
+
+    @ColorInt
+    protected var baselineColor: Int
+    protected var baselineWidth: Float
+    protected var baselinePosition: Float
+    protected var showBaseline: Boolean
+
+    protected lateinit var paint: Paint
+    protected lateinit var timeModel: TimeModel
+
+    /**
+     * 游标所在位置时间
+     */
+    protected var currentTimeValue = 0L
+
+    protected var minUnitPixel by Delegates.notNull<Float>()
+    protected var maxUnitPixel by Delegates.notNull<Float>()
+
+    /**
+     * 单位时间占用像素 区间 [[minUnitPixel], [maxUnitPixel]]
+     */
+    protected var unitPixel by Delegates.notNull<Float>()
+
+    protected var tickSpacePixel by Delegates.notNull<Float>()
+
+    protected var scaleRatio = 1.0f
 
     private var scrollHappened: Boolean = false
     private var gestureDetectorCompat = GestureDetectorCompat(context, this)
     private var scaleGestureDetector = ScaleGestureDetector(context, this)
     private var scroller = Scroller(context)
-
-    @ColorInt
-    private var tickTextColor: Int
-    private var tickTextSize: Float
-    private var showTickText: Boolean
-
-    private var showTick: Boolean
-    private var maxTickSpace: Float
-
-    @ColorInt
-    private var normalTickColor: Int
-    private var normalTickWidth: Float
-    private var normalTickHeight: Float
-
-    @ColorInt
-    private var keyTickColor: Int
-    private var keyTickWidth: Float
-    private var keyTickHeight: Float
-
-    @ColorInt
-    private var cursorLineColor: Int
-    private var cursorLineWidth: Float
-    private var cursorLinePosition: Float
-    private var showCursorLine: Boolean
-
-    @ColorInt
-    private var baselineOutDayColor: Int
-
-    @ColorInt
-    private var baselineColor: Int
-    private var baselineWidth: Float
-    private var baselinePosition: Float
-    private var showBaseline: Boolean
-
-    private lateinit var paint: Paint
-    private lateinit var timeModel: TimeModel
-
-    /**
-     * 游标所在位置时间
-     */
-    private var currentTimeValue = 0L
-
-    private var minUnitPixel by Delegates.notNull<Float>()
-    private var maxUnitPixel by Delegates.notNull<Float>()
-
-    /**
-     * 单位时间占用像素 区间 [[minUnitPixel], [maxUnitPixel]]
-     */
-    private var unitPixel by Delegates.notNull<Float>()
-
-    private var tickSpacePixel by Delegates.notNull<Float>()
-
-    private var scaleRatio = 1.0f
 
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.TimeRulerView)
@@ -527,5 +519,14 @@ open class TimeRulerView @JvmOverloads constructor(
                 status = STATUS_DOWN
             }
         }
+    }
+
+    companion object {
+        val TAG = TimeRulerView::class.java.simpleName
+        const val STATUS_NONE = 0
+        const val STATUS_DOWN = STATUS_NONE + 1
+        const val STATUS_SCROLL = STATUS_DOWN + 1
+        const val STATUS_SCROLL_FLING = STATUS_SCROLL + 1
+        const val STATUS_ZOOM = STATUS_SCROLL_FLING + 1
     }
 }
