@@ -17,6 +17,7 @@ import androidx.annotation.ColorInt
 import androidx.core.view.GestureDetectorCompat
 import java.util.*
 import kotlin.math.ceil
+import kotlin.math.max
 import kotlin.properties.Delegates
 
 /**
@@ -317,16 +318,15 @@ open class TimeRulerView @JvmOverloads constructor(
             canvas.drawLine(0f, top, width.toFloat(), top, paint)
             paint.strokeWidth = 1f
 
-            val text = simpleDateFormat.format(currentTimeValue)
+            val text = simpleDateFormat2.format(currentTimeValue)
 
             val rect = Rect()
             paint.getTextBounds(text, 0, text.length, rect)
-            val w = rect.width()
-            val h = rect.height()
 
 //            val x = width * baselinePosition - normalTickHeight
 
-            canvas.drawText(text, width / 2f - w / 2f, top - h / 2f, paint)
+            paint.textAlign = Paint.Align.CENTER
+            canvas.drawText(text, width / 2f, top - rect.height(), paint)
         }
     }
 

@@ -7,4 +7,7 @@ import java.text.SimpleDateFormat
 val simpleDateFormat = SimpleDateFormat("HH:mm")
 
 @SuppressLint("SimpleDateFormat")
-val simpleDateFormat2 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+val simpleDateFormat2 = SimpleDateFormat("HH:mm:ss")
+
+@SuppressLint("SimpleDateFormat")
+val simpleDateFormat3 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
