@@ -267,17 +267,18 @@ open class TimeRulerView @JvmOverloads constructor(
         val backCount = height * (1 - cursorLinePosition) / (tickSpacePixel + normalTickWidth)
 
         //从游标线往后画
-        for (i in 0 until ceil(backCount.toDouble()).toInt()) {
+        for (i in 0..ceil(backCount.toDouble()).toInt()) {
             val timeValue = backTimeValue + timeModel.unitTimeValue * i
-            if (timeValue > timeModel.endTimeValue) {
-                break
-            }
 
             val x = width * baselinePosition - normalTickHeight
             val y = backPosition + tickSpacePixel * i
 
             onDrawTickLine(canvas, x, y)
             onDrawTickText(canvas, x, y, timeValue)
+
+            if (timeValue > timeModel.endTimeValue) {
+                break
+            }
         }
     }
 
@@ -315,6 +316,17 @@ open class TimeRulerView @JvmOverloads constructor(
             val top = height * cursorLinePosition
             canvas.drawLine(0f, top, width.toFloat(), top, paint)
             paint.strokeWidth = 1f
+
+            val text = simpleDateFormat.format(currentTimeValue)
+
+            val rect = Rect()
+            paint.getTextBounds(text, 0, text.length, rect)
+            val w = rect.width()
+            val h = rect.height()
+
+//            val x = width * baselinePosition - normalTickHeight
+
+            canvas.drawText(text, width / 2f - w / 2f, top - h / 2f, paint)
         }
     }
 
