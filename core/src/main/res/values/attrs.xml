@@ -34,7 +34,7 @@
         <!--endregion-->
 
         <attr name="trv_showTick" format="boolean" />
-        <attr name="trv_maxTickSpace" format="dimension|reference" />
+        <attr name="trv_minTickSpace" format="dimension|reference" />
 
         <!--region 刻度文本-->
         <attr name="trv_showTickText" format="boolean" />
