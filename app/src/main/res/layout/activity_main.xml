@@ -6,14 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.mcxinyu.scheduletimeruler.TimeRulerView
+    <com.mcxinyu.scheduletimeruler.ScaleTimeRulerView
         android:id="@+id/timeRuler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:trv_baselineWidth="4dp"
-        app:trv_font="@font/rubik_regular" />
+        app:trv_baselineWidth="5dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

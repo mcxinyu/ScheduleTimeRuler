@@ -11,7 +11,6 @@ import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.Scroller
 import androidx.annotation.ColorInt
-import androidx.annotation.StringDef
 import androidx.core.view.GestureDetectorCompat
 import java.util.*
 import kotlin.math.ceil
@@ -24,10 +23,9 @@ import androidx.core.content.res.ResourcesCompat
  */
 open class TimeRulerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
-) : View(context, attrs), GestureDetector.OnGestureListener,
-    ScaleGestureDetector.OnScaleGestureListener {
+) : View(context, attrs), GestureDetector.OnGestureListener {
 
-    private var typeface: Typeface?
+    private var typeface: Typeface? = null
 
     @ColorInt
     protected var tickTextColor: Int
@@ -56,7 +54,10 @@ open class TimeRulerView @JvmOverloads constructor(
     /**
      * 游标所在位置时间
      */
-    protected var cursorTimeValue = 0L
+    var cursorTimeValue = System.currentTimeMillis()
+        set(value) {
+            field = value
+        }
     protected var showCursorLine: Boolean
 
     @ColorInt
@@ -70,37 +71,35 @@ open class TimeRulerView @JvmOverloads constructor(
     protected var showBaseline: Boolean
 
     protected lateinit var paint: Paint
-    protected lateinit var timeModel: TimeModel
+        private set
+
+    protected var timeModel = TimeModel()
+        private set
 
     /**
-     * 每毫秒最大占有像素，由[maxTickSpace]分成一分钟毫秒数得到
-     */
-    protected var maxUnitPixel: Float
-
-    /**
-     * 每毫秒最小占有像素
-     */
-    protected var minUnitPixel: Float
-
-    /**
-     * 每毫秒 单位时间占用像素 区间 [[minUnitPixel], [maxUnitPixel]]
+     * 每毫秒时间占用像素
      */
     protected var millisecondUnitPixel by Delegates.notNull<Float>()
 
+    /**
+     * 每格占用像素
+     */
     protected var tickSpacePixel by Delegates.notNull<Float>()
 
-    protected var scaleRatio = 1.0f
-
-    private var scrollHappened: Boolean = false
-    private var gestureDetectorCompat = GestureDetectorCompat(context, this)
-    private var scaleGestureDetector = ScaleGestureDetector(context, this)
-    private var scroller = Scroller(context)
+    protected var scrollHappened: Boolean = false
+    protected var gestureDetectorCompat = GestureDetectorCompat(context, this)
+    protected var status: Int = STATUS_NONE
+    protected var scroller = Scroller(context)
 
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.TimeRulerView)
 
-        val font = typedArray.getResourceId(R.styleable.TimeRulerView_trv_font, 0)
-        typeface = ResourcesCompat.getFont(context, font)
+        try {
+            val font = typedArray.getResourceId(R.styleable.TimeRulerView_trv_font, 0)
+            typeface = ResourcesCompat.getFont(context, font)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         showBaseline =
             typedArray.getBoolean(R.styleable.TimeRulerView_trv_showBaseline, true)
@@ -171,10 +170,6 @@ open class TimeRulerView @JvmOverloads constructor(
                 R.styleable.TimeRulerView_trv_minTickSpace,
                 80.toPx(context)
             )
-        //[maxTickSpace]分成一分钟的毫秒数
-        maxUnitPixel = maxTickSpace / (60 * 1000)
-        //[maxUnitPixel]缩小 360(分钟)倍
-        minUnitPixel = maxUnitPixel / (60 * 6)
 
         showTickText =
             typedArray.getBoolean(R.styleable.TimeRulerView_trv_showTickText, true)
@@ -199,10 +194,12 @@ open class TimeRulerView @JvmOverloads constructor(
         paint.isAntiAlias = true
         paint.isDither = true
         paint.style = Paint.Style.FILL_AND_STROKE
-        paint.typeface = typeface
+        typeface?.let { paint.typeface = typeface }
 
-        timeModel = TimeModel()
-        cursorTimeValue = timeModel.startTimeValue
+        if (cursorTimeValue < timeModel.startTimeValue)
+            cursorTimeValue = timeModel.startTimeValue
+        else if (cursorTimeValue > timeModel.endTimeValue)
+            cursorTimeValue = timeModel.endTimeValue
     }
 
     override fun onSizeChanged(width: Int, height: Int, oldw: Int, oldh: Int) {
@@ -211,7 +208,7 @@ open class TimeRulerView @JvmOverloads constructor(
         cursorLinePosition = height * cursorLinePositionPercentage
         baselinePosition = width * baselinePositionPercentage
 
-        millisecondUnitPixel = maxUnitPixel * scaleRatio
+        millisecondUnitPixel = maxTickSpace / timeModel.unitTimeValue
         tickSpacePixel = timeModel.unitTimeValue * millisecondUnitPixel
     }
 
@@ -390,48 +387,8 @@ open class TimeRulerView @JvmOverloads constructor(
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        scaleGestureDetector.onTouchEvent(event)
         gestureDetectorCompat.onTouchEvent(event)
         return true
-    }
-
-    private var status: Int = STATUS_NONE
-
-    override fun onScale(detector: ScaleGestureDetector): Boolean {
-        status = STATUS_ZOOM
-        var scaleFactor = detector.scaleFactor
-        millisecondUnitPixel *= scaleFactor
-        if (millisecondUnitPixel > maxUnitPixel) {
-            millisecondUnitPixel = maxUnitPixel
-            scaleFactor = 1f
-        } else if (millisecondUnitPixel < minUnitPixel) {
-            millisecondUnitPixel = minUnitPixel
-            scaleFactor = 1f
-        }
-
-        onScale(timeModel, millisecondUnitPixel)
-
-        scaleRatio *= scaleFactor
-
-        tickSpacePixel = timeModel.unitTimeValue * millisecondUnitPixel
-
-        Log.d(
-            TAG,
-            "maxUnitPixel $maxUnitPixel minUnitPixel $minUnitPixel unitPixel $millisecondUnitPixel scaleRatio $scaleRatio scaleFactor $scaleFactor tickSpacePixel $tickSpacePixel"
-        )
-
-        invalidate()
-
-        return millisecondUnitPixel < maxUnitPixel || millisecondUnitPixel > minUnitPixel
-    }
-
-    protected fun onScale(timeModel: TimeModel, unitPixel: Float) {
-
-    }
-
-    override fun onScaleBegin(detector: ScaleGestureDetector) = true
-
-    override fun onScaleEnd(detector: ScaleGestureDetector) {
     }
 
     override fun onDown(e: MotionEvent): Boolean {
@@ -454,9 +411,6 @@ open class TimeRulerView @JvmOverloads constructor(
     override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float):
             Boolean {
         if (e2.pointerCount > 1) {
-            return false
-        }
-        if (scaleGestureDetector.isInProgress) {
             return false
         }
         if (!scrollHappened) {
@@ -525,30 +479,11 @@ open class TimeRulerView @JvmOverloads constructor(
 
     companion object {
         val TAG = TimeRulerView::class.java.simpleName
+
         const val STATUS_NONE = 0
         const val STATUS_DOWN = STATUS_NONE + 1
         const val STATUS_SCROLL = STATUS_DOWN + 1
         const val STATUS_SCROLL_FLING = STATUS_SCROLL + 1
-        const val STATUS_ZOOM = STATUS_SCROLL_FLING + 1
-
-        const val MODE_UINT_D5_MIN = "unit d5 minute"
-        const val MODE_UINT_1_MIN = "unit 1 minute"
-        const val MODE_UINT_5_MIN = "unit 5 minute"
-        const val MODE_UINT_10_MIN = "unit 10 minute"
-        const val MODE_UINT_30_MIN = "unit 30 minute"
-        const val MODE_UINT_1_HOUR = "unit 1 hour"
-        const val MODE_UINT_2_HOUR = "unit 2 hour"
     }
-
-    @StringDef(
-        MODE_UINT_D5_MIN,
-        MODE_UINT_1_MIN,
-        MODE_UINT_5_MIN,
-        MODE_UINT_10_MIN,
-        MODE_UINT_30_MIN,
-        MODE_UINT_1_HOUR,
-        MODE_UINT_2_HOUR,
-    )
-    annotation class Mode
 }
 
