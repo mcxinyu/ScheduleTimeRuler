@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
-import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -17,7 +16,6 @@ import androidx.core.view.GestureDetectorCompat
 import java.util.*
 import kotlin.math.ceil
 import kotlin.properties.Delegates
-import android.view.ViewConfiguration
 import androidx.core.content.res.ResourcesCompat
 
 
@@ -37,7 +35,7 @@ open class TimeRulerView @JvmOverloads constructor(
     protected var showTickText: Boolean
 
     protected var showTick: Boolean
-    protected var minTickSpace: Float
+    protected var maxTickSpace: Float
 
     @ColorInt
     protected var normalTickColor: Int
@@ -75,19 +73,19 @@ open class TimeRulerView @JvmOverloads constructor(
     protected lateinit var timeModel: TimeModel
 
     /**
-     * 每格最小占有像素，由[minTickSpace]处以一小时毫秒数得到
-     */
-    protected var minUnitPixel: Float
-
-    /**
-     * 每格最大占有像素
+     * 每毫秒最大占有像素，由[maxTickSpace]分成一分钟毫秒数得到
      */
     protected var maxUnitPixel: Float
 
     /**
+     * 每毫秒最小占有像素
+     */
+    protected var minUnitPixel: Float
+
+    /**
      * 每毫秒 单位时间占用像素 区间 [[minUnitPixel], [maxUnitPixel]]
      */
-    protected var unitPixel by Delegates.notNull<Float>()
+    protected var millisecondUnitPixel by Delegates.notNull<Float>()
 
     protected var tickSpacePixel by Delegates.notNull<Float>()
 
@@ -168,13 +166,15 @@ open class TimeRulerView @JvmOverloads constructor(
 
         showTick =
             typedArray.getBoolean(R.styleable.TimeRulerView_trv_showTick, true)
-        minTickSpace =
+        maxTickSpace =
             typedArray.getDimension(
                 R.styleable.TimeRulerView_trv_minTickSpace,
                 80.toPx(context)
             )
-        minUnitPixel = minTickSpace / (60 * 60 * 1000)
-        maxUnitPixel = minUnitPixel * 60
+        //[maxTickSpace]分成一分钟的毫秒数
+        maxUnitPixel = maxTickSpace / (60 * 1000)
+        //[maxUnitPixel]缩小 360(分钟)倍
+        minUnitPixel = maxUnitPixel / (60 * 6)
 
         showTickText =
             typedArray.getBoolean(R.styleable.TimeRulerView_trv_showTickText, true)
@@ -211,8 +211,8 @@ open class TimeRulerView @JvmOverloads constructor(
         cursorLinePosition = height * cursorLinePositionPercentage
         baselinePosition = width * baselinePositionPercentage
 
-        unitPixel = maxUnitPixel * scaleRatio
-        tickSpacePixel = timeModel.unitTimeValue * unitPixel
+        millisecondUnitPixel = maxUnitPixel * scaleRatio
+        tickSpacePixel = timeModel.unitTimeValue * millisecondUnitPixel
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -272,7 +272,7 @@ open class TimeRulerView @JvmOverloads constructor(
         //向前走，距离游标线最近的刻度代表的时间
         val frontLastTimeOffsetValue = cursorTimeValue - frontFirstTimeOffset
         //向前走，距离游标线最近的刻度所在位置
-        val frontLastTimePosition = cursorLinePosition - frontFirstTimeOffset * unitPixel
+        val frontLastTimePosition = cursorLinePosition - frontFirstTimeOffset * millisecondUnitPixel
         val frontCount = cursorLinePosition / tickSpacePixel
 
         //从游标线往前画
@@ -285,9 +285,9 @@ open class TimeRulerView @JvmOverloads constructor(
             val x = baselinePosition - normalTickHeight
             val y = frontLastTimePosition - tickSpacePixel * i
 
-            onDrawTickBaseline(canvas, y)
+            onDrawTickBaseline(canvas, x, y, timeValue)
 
-            onDrawTickLine(canvas, x, y)
+            onDrawTickLine(canvas, x, y, timeValue)
             onDrawTickText(canvas, x, y, timeValue)
         }
 
@@ -303,10 +303,10 @@ open class TimeRulerView @JvmOverloads constructor(
             val y = backFirstTimePosition + tickSpacePixel * i
 
             if (timeValue < timeModel.endTimeValue) {
-                onDrawTickBaseline(canvas, y)
+                onDrawTickBaseline(canvas, x, y, timeValue)
             }
 
-            onDrawTickLine(canvas, x, y)
+            onDrawTickLine(canvas, x, y, timeValue)
             onDrawTickText(canvas, x, y, timeValue)
 
             if (timeValue > timeModel.endTimeValue) {
@@ -332,7 +332,7 @@ open class TimeRulerView @JvmOverloads constructor(
         }
     }
 
-    protected fun onDrawTickLine(canvas: Canvas, x: Float, y: Float) {
+    protected fun onDrawTickLine(canvas: Canvas, x: Float, y: Float, timeValue: Long) {
         if (showTick) {
             paint.color = normalTickColor
             paint.strokeWidth = normalTickWidth
@@ -360,7 +360,7 @@ open class TimeRulerView @JvmOverloads constructor(
         }
     }
 
-    protected fun onDrawTickBaseline(canvas: Canvas, y: Float) {
+    protected fun onDrawTickBaseline(canvas: Canvas, x: Float, y: Float, timeValue: Long) {
         if (showBaseline) {
             paint.color = baselineColor
 
@@ -400,29 +400,29 @@ open class TimeRulerView @JvmOverloads constructor(
     override fun onScale(detector: ScaleGestureDetector): Boolean {
         status = STATUS_ZOOM
         var scaleFactor = detector.scaleFactor
-        unitPixel *= scaleFactor
-        if (unitPixel > maxUnitPixel) {
-            unitPixel = maxUnitPixel
+        millisecondUnitPixel *= scaleFactor
+        if (millisecondUnitPixel > maxUnitPixel) {
+            millisecondUnitPixel = maxUnitPixel
             scaleFactor = 1f
-        } else if (unitPixel < minUnitPixel) {
-            unitPixel = minUnitPixel
+        } else if (millisecondUnitPixel < minUnitPixel) {
+            millisecondUnitPixel = minUnitPixel
             scaleFactor = 1f
         }
 
-        onScale(timeModel, unitPixel)
+        onScale(timeModel, millisecondUnitPixel)
 
         scaleRatio *= scaleFactor
 
-        tickSpacePixel = timeModel.unitTimeValue * unitPixel
+        tickSpacePixel = timeModel.unitTimeValue * millisecondUnitPixel
 
         Log.d(
             TAG,
-            "maxUnitPixel $maxUnitPixel minUnitPixel $minUnitPixel unitPixel $unitPixel scaleRatio $scaleRatio scaleFactor $scaleFactor tickSpacePixel $tickSpacePixel"
+            "maxUnitPixel $maxUnitPixel minUnitPixel $minUnitPixel unitPixel $millisecondUnitPixel scaleRatio $scaleRatio scaleFactor $scaleFactor tickSpacePixel $tickSpacePixel"
         )
 
         invalidate()
 
-        return unitPixel < maxUnitPixel || unitPixel > minUnitPixel
+        return millisecondUnitPixel < maxUnitPixel || millisecondUnitPixel > minUnitPixel
     }
 
     protected fun onScale(timeModel: TimeModel, unitPixel: Float) {
@@ -466,7 +466,7 @@ open class TimeRulerView @JvmOverloads constructor(
 
         status = STATUS_SCROLL
 
-        val increment = distanceY / unitPixel
+        val increment = distanceY / millisecondUnitPixel
         cursorTimeValue += increment.toLong()
 
         var result = true
@@ -490,8 +490,9 @@ open class TimeRulerView @JvmOverloads constructor(
             Boolean {
         status = STATUS_SCROLL_FLING
 
-        val startY = ((cursorTimeValue - timeModel.startTimeValue) * unitPixel).toInt()
-        val maxY = ((timeModel.endTimeValue - timeModel.startTimeValue) * unitPixel).toInt()
+        val startY = ((cursorTimeValue - timeModel.startTimeValue) * millisecondUnitPixel).toInt()
+        val maxY =
+            ((timeModel.endTimeValue - timeModel.startTimeValue) * millisecondUnitPixel).toInt()
 
         scroller.fling(
             0, startY,
@@ -508,7 +509,7 @@ open class TimeRulerView @JvmOverloads constructor(
     override fun computeScroll() {
         if (scroller.computeScrollOffset()) {
             val currY = scroller.currY
-            cursorTimeValue = timeModel.startTimeValue + (currY / unitPixel).toLong()
+            cursorTimeValue = timeModel.startTimeValue + (currY / millisecondUnitPixel).toLong()
             if (cursorTimeValue > timeModel.endTimeValue) {
                 cursorTimeValue = timeModel.endTimeValue
             } else if (cursorTimeValue < timeModel.startTimeValue) {
