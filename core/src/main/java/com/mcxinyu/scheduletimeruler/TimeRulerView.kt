@@ -2,12 +2,10 @@ package com.mcxinyu.scheduletimeruler
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
+import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -20,6 +18,7 @@ import java.util.*
 import kotlin.math.ceil
 import kotlin.properties.Delegates
 import android.view.ViewConfiguration
+import androidx.core.content.res.ResourcesCompat
 
 
 /**
@@ -29,6 +28,8 @@ open class TimeRulerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : View(context, attrs), GestureDetector.OnGestureListener,
     ScaleGestureDetector.OnScaleGestureListener {
+
+    private var typeface: Typeface?
 
     @ColorInt
     protected var tickTextColor: Int
@@ -99,6 +100,10 @@ open class TimeRulerView @JvmOverloads constructor(
 
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.TimeRulerView)
+
+        val font = typedArray.getResourceId(R.styleable.TimeRulerView_trv_font, 0)
+        typeface = ResourcesCompat.getFont(context, font)
+
         showBaseline =
             typedArray.getBoolean(R.styleable.TimeRulerView_trv_showBaseline, true)
         baselinePositionPercentage =
@@ -194,6 +199,7 @@ open class TimeRulerView @JvmOverloads constructor(
         paint.isAntiAlias = true
         paint.isDither = true
         paint.style = Paint.Style.FILL_AND_STROKE
+        paint.typeface = typeface
 
         timeModel = TimeModel()
         cursorTimeValue = timeModel.startTimeValue
@@ -249,19 +255,7 @@ open class TimeRulerView @JvmOverloads constructor(
 
         onDrawBaseline(canvas)
 
-//        val firstTickLinePosition =
-//            cursorLinePosition - (cursorTimeValue - timeModel.startTimeValue) * unitPixel
-//        if (firstTickLinePosition > 0) {
-////            onDrawBeforeDay(canvas, 0f, 0f, width.toFloat(), firstTickLinePosition)
-//        }
-
         onDrawTick(canvas)
-
-//        val lastTickLinePosition =
-//            height - cursorLinePosition - (timeModel.endTimeValue - cursorTimeValue) * unitPixel
-//        if (lastTickLinePosition > 0) {
-////            onDrawNextDay(canvas, 0f, lastTickLinePosition, width.toFloat(), height.toFloat())
-//        }
 
         onDrawCursor(canvas)
     }
