@@ -19,6 +19,8 @@ import androidx.core.view.GestureDetectorCompat
 import java.util.*
 import kotlin.math.ceil
 import kotlin.properties.Delegates
+import android.view.ViewConfiguration
+
 
 /**
  * @author [yuefeng](mailto:mcxinyu@foxmail.com) in 2021/12/24.
@@ -50,6 +52,12 @@ open class TimeRulerView @JvmOverloads constructor(
     protected var cursorLineColor: Int
     protected var cursorLineWidth: Float
     protected var cursorLinePositionPercentage: Float
+    protected var cursorLinePosition by Delegates.notNull<Float>()
+
+    /**
+     * 游标所在位置时间
+     */
+    protected var cursorTimeValue = 0L
     protected var showCursorLine: Boolean
 
     @ColorInt
@@ -58,17 +66,12 @@ open class TimeRulerView @JvmOverloads constructor(
     @ColorInt
     protected var baselineColor: Int
     protected var baselineWidth: Float
-    protected var baselinePosition: Float
+    protected var baselinePositionPercentage: Float
+    protected var baselinePosition by Delegates.notNull<Float>()
     protected var showBaseline: Boolean
 
     protected lateinit var paint: Paint
     protected lateinit var timeModel: TimeModel
-
-    /**
-     * 游标所在位置时间
-     */
-    protected var cursorTimeValue = 0L
-    protected var cursorLinePosition by Delegates.notNull<Float>()
 
     /**
      * 每格最小占有像素，由[minTickSpace]处以一小时毫秒数得到
@@ -98,7 +101,7 @@ open class TimeRulerView @JvmOverloads constructor(
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.TimeRulerView)
         showBaseline =
             typedArray.getBoolean(R.styleable.TimeRulerView_trv_showBaseline, true)
-        baselinePosition =
+        baselinePositionPercentage =
             typedArray.getFloat(R.styleable.TimeRulerView_trv_baselinePosition, 0.3f)
         baselineColor =
             typedArray.getColor(R.styleable.TimeRulerView_trv_baselineColor, Color.LTGRAY)
@@ -200,6 +203,7 @@ open class TimeRulerView @JvmOverloads constructor(
         super.onSizeChanged(width, height, oldw, oldh)
 
         cursorLinePosition = height * cursorLinePositionPercentage
+        baselinePosition = width * baselinePositionPercentage
 
         unitPixel = maxUnitPixel * scaleRatio
         tickSpacePixel = timeModel.unitTimeValue * unitPixel
@@ -216,7 +220,7 @@ open class TimeRulerView @JvmOverloads constructor(
 
     private fun getHeightSize(size: Int, heightMeasureSpec: Int): Int {
         var result = size
-        val contentHeight: Int = calculateContentWidth(baselinePosition)
+        val contentHeight: Int = calculateContentWidth()
         val specMode = MeasureSpec.getMode(heightMeasureSpec)
         val specSize = MeasureSpec.getSize(heightMeasureSpec)
         when (specMode) {
@@ -228,7 +232,7 @@ open class TimeRulerView @JvmOverloads constructor(
         return result
     }
 
-    protected fun calculateContentWidth(baselinePositionProportion: Float): Int {
+    protected fun calculateContentWidth(): Int {
         var tickValueHeight = 0
         if (showTickText) {
             //让字体不要溢出，这里应该动态换算基线左边还有位置显示文本么？
@@ -237,7 +241,7 @@ open class TimeRulerView @JvmOverloads constructor(
             val ceil = Math.ceil((fontMetrics.bottom - fontMetrics.top).toDouble())
             tickValueHeight = ceil.toInt()
         }
-        return ((keyTickHeight + tickValueHeight) / baselinePositionProportion + 0.5f).toInt()
+        return ((keyTickHeight + tickValueHeight) / baselinePositionPercentage + 0.5f).toInt()
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -245,24 +249,28 @@ open class TimeRulerView @JvmOverloads constructor(
 
         onDrawBaseline(canvas)
 
-        val fitstTickLinePosition =
-            cursorLinePosition - (cursorTimeValue - timeModel.startTimeValue) * unitPixel
-        if (fitstTickLinePosition > 0) {
-            onDrawFrontDay(canvas, 0f, 0f, width.toFloat(), fitstTickLinePosition)
-        }
+//        val firstTickLinePosition =
+//            cursorLinePosition - (cursorTimeValue - timeModel.startTimeValue) * unitPixel
+//        if (firstTickLinePosition > 0) {
+////            onDrawBeforeDay(canvas, 0f, 0f, width.toFloat(), firstTickLinePosition)
+//        }
 
         onDrawTick(canvas)
 
-        val lastTickLinePosition =
-            height - cursorLinePosition - (timeModel.endTimeValue - cursorTimeValue) * unitPixel
-        if (lastTickLinePosition > 0) {
-            onDrawBackDay(canvas, 0f, lastTickLinePosition, width.toFloat(), height.toFloat())
-        }
+//        val lastTickLinePosition =
+//            height - cursorLinePosition - (timeModel.endTimeValue - cursorTimeValue) * unitPixel
+//        if (lastTickLinePosition > 0) {
+////            onDrawNextDay(canvas, 0f, lastTickLinePosition, width.toFloat(), height.toFloat())
+//        }
 
         onDrawCursor(canvas)
     }
 
-    private fun onDrawTick(canvas: Canvas) {
+    /**
+     * 画刻度
+     * @param canvas Canvas
+     */
+    protected fun onDrawTick(canvas: Canvas) {
         //在游标线以上包含的今日时间
         val frontTodayTimeRange = cursorTimeValue - timeModel.startTimeValue
         //可见的第一个刻度的时间在屏幕外的偏移量
@@ -274,14 +282,16 @@ open class TimeRulerView @JvmOverloads constructor(
         val frontCount = cursorLinePosition / tickSpacePixel
 
         //从游标线往前画
-        for (i in 0 until ceil(frontCount.toDouble()).toInt()) {
+        for (i in 0..ceil(frontCount.toDouble()).toInt()) {
             val timeValue = frontLastTimeOffsetValue - timeModel.unitTimeValue * i
             if (timeValue < timeModel.startTimeValue) {
                 break
             }
 
-            val x = width * baselinePosition - normalTickHeight
+            val x = baselinePosition - normalTickHeight
             val y = frontLastTimePosition - tickSpacePixel * i
+
+            onDrawTickBaseline(canvas, y)
 
             onDrawTickLine(canvas, x, y)
             onDrawTickText(canvas, x, y, timeValue)
@@ -289,14 +299,18 @@ open class TimeRulerView @JvmOverloads constructor(
 
         val backFirstTimeValue = frontLastTimeOffsetValue + timeModel.unitTimeValue
         val backFirstTimePosition = frontLastTimePosition + tickSpacePixel
-        val backCount = (height - cursorLinePosition) / (tickSpacePixel + normalTickWidth)
+        val backCount = (height - cursorLinePosition) / tickSpacePixel
 
         //从游标线往后画
         for (i in 0 until ceil(backCount.toDouble()).toInt()) {
             val timeValue = backFirstTimeValue + timeModel.unitTimeValue * i
 
-            val x = width * baselinePosition - normalTickHeight
+            val x = baselinePosition - normalTickHeight
             val y = backFirstTimePosition + tickSpacePixel * i
+
+            if (timeValue < timeModel.endTimeValue) {
+                onDrawTickBaseline(canvas, y)
+            }
 
             onDrawTickLine(canvas, x, y)
             onDrawTickText(canvas, x, y, timeValue)
@@ -305,50 +319,6 @@ open class TimeRulerView @JvmOverloads constructor(
                 break
             }
         }
-    }
-
-    protected fun onDrawBackDay(canvas: Canvas, x0: Float, y0: Float, x1: Float, y1: Float) {
-        val rectText = Rect()
-        paint.getTextBounds("23:59", 0, "23:59".length, rectText)
-
-        //region plan1
-//        paint.color = -0x1000000
-//        val rect = Rect(x0.toInt(), y0.toInt(), x1.toInt(), y1.toInt() + rectText.height() / 2)
-//        canvas.drawRect(rect, paint)
-        //endregion
-
-        //region plan2
-        paint.color = baselineOutDayColor
-        val rect2 = Rect(
-            (width * baselinePosition).toInt() - 1,
-            (y0 + keyTickWidth).toInt(),
-            (width * baselinePosition + baselineWidth).toInt() + 1,
-            y1.toInt()
-        )
-        canvas.drawRect(rect2, paint)
-        //endregion
-    }
-
-    protected fun onDrawFrontDay(canvas: Canvas, x0: Float, y0: Float, x1: Float, y1: Float) {
-        val rectText = Rect()
-        paint.getTextBounds("00:00", 0, "00:00".length, rectText)
-
-        //region plan1
-//        paint.color = -0x1000000
-//        val rect = Rect(x0.toInt(), y0.toInt(), x1.toInt(), y1.toInt() - rectText.height() / 2)
-//        canvas.drawRect(rect, paint)
-        //endregion
-
-        //region plan2
-        paint.color = baselineOutDayColor
-        val rect2 = Rect(
-            (width * baselinePosition).toInt() - 1,
-            0,
-            (width * baselinePosition + baselineWidth).toInt() + 1,
-            y1.toInt()
-        )
-        canvas.drawRect(rect2, paint)
-        //endregion
     }
 
     protected fun onDrawTickText(canvas: Canvas, x: Float, y: Float, timeValue: Long) {
@@ -372,7 +342,7 @@ open class TimeRulerView @JvmOverloads constructor(
         if (showTick) {
             paint.color = normalTickColor
             paint.strokeWidth = normalTickWidth
-            canvas.drawLine(x, y, width * baselinePosition, y, paint)
+            canvas.drawLine(x, y, baselinePosition, y, paint)
             paint.strokeWidth = 1f
         }
     }
@@ -396,14 +366,28 @@ open class TimeRulerView @JvmOverloads constructor(
         }
     }
 
-    protected fun onDrawBaseline(canvas: Canvas) {
+    protected fun onDrawTickBaseline(canvas: Canvas, y: Float) {
         if (showBaseline) {
             paint.color = baselineColor
 
             val rect = Rect(
-                (width * baselinePosition).toInt(),
+                baselinePosition.toInt(),
+                y.toInt(),
+                (baselinePosition + baselineWidth).toInt(),
+                (y + tickSpacePixel).toInt()
+            )
+            canvas.drawRect(rect, paint)
+        }
+    }
+
+    protected fun onDrawBaseline(canvas: Canvas) {
+        if (showBaseline) {
+            paint.color = baselineOutDayColor
+
+            val rect = Rect(
+                baselinePosition.toInt(),
                 0,
-                (width * baselinePosition + baselineWidth).toInt(),
+                (baselinePosition + baselineWidth).toInt(),
                 height
             )
             canvas.drawRect(rect, paint)
@@ -439,7 +423,7 @@ open class TimeRulerView @JvmOverloads constructor(
 
         Log.d(
             TAG,
-            "maxUnitPixel $maxUnitPixel minUnitPixel $minUnitPixel unitPixel $unitPixel scaleRatio $scaleRatio tickSpacePixel $tickSpacePixel"
+            "maxUnitPixel $maxUnitPixel minUnitPixel $minUnitPixel unitPixel $unitPixel scaleRatio $scaleRatio scaleFactor $scaleFactor tickSpacePixel $tickSpacePixel"
         )
 
         invalidate()
@@ -515,7 +499,12 @@ open class TimeRulerView @JvmOverloads constructor(
         val startY = ((cursorTimeValue - timeModel.startTimeValue) * unitPixel).toInt()
         val maxY = ((timeModel.endTimeValue - timeModel.startTimeValue) * unitPixel).toInt()
 
-        scroller.fling(0, startY, 0, (-velocityY).toInt(), 0, 0, 0, maxY)
+        scroller.fling(
+            0, startY,
+            -velocityX.toInt(), -velocityY.toInt(),
+            0, 0,
+            0, maxY
+        )
 
         invalidate()
 
@@ -553,6 +542,7 @@ open class TimeRulerView @JvmOverloads constructor(
         const val MODE_UINT_10_MIN = "unit 10 minute"
         const val MODE_UINT_30_MIN = "unit 30 minute"
         const val MODE_UINT_1_HOUR = "unit 1 hour"
+        const val MODE_UINT_2_HOUR = "unit 2 hour"
     }
 
     @StringDef(
@@ -561,7 +551,8 @@ open class TimeRulerView @JvmOverloads constructor(
         MODE_UINT_5_MIN,
         MODE_UINT_10_MIN,
         MODE_UINT_30_MIN,
-        MODE_UINT_1_HOUR
+        MODE_UINT_1_HOUR,
+        MODE_UINT_2_HOUR,
     )
     annotation class Mode
 }
