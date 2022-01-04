@@ -17,7 +17,7 @@ Add it in your root build.gradle at the end of repositories:
 Step 2. Add the dependency
 
 	dependencies {
-	        implementation 'com.github.mcxinyu:ScheduleTimeRuler:2021.1.4.1513'
+	        implementation "com.github.mcxinyu:ScheduleTimeRuler:{last-version}"
 	}
 
 
