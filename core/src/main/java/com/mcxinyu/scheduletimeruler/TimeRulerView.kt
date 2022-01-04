@@ -59,7 +59,7 @@ open class TimeRulerView @JvmOverloads constructor(
     protected var cursorLineWidth: Float
     protected var cursorLinePositionPercentage: Float
     protected var cursorLinePosition by Delegates.notNull<Float>()
-
+    protected var showCursorText: Boolean
     protected var showCursorLine: Boolean
 
     @ColorInt
@@ -86,6 +86,7 @@ open class TimeRulerView @JvmOverloads constructor(
             if (value < timeModel.startTimeValue) field = timeModel.startTimeValue
             else if (value > timeModel.endTimeValue) field = timeModel.endTimeValue
             else field = value
+            onCursorListener?.onProgressChanged(cursorTimeValue)
             invalidate()
         }
 
@@ -132,6 +133,8 @@ open class TimeRulerView @JvmOverloads constructor(
 
         showCursorLine =
             typedArray.getBoolean(R.styleable.TimeRulerView_trv_showCursorLine, true)
+        showCursorText =
+            typedArray.getBoolean(R.styleable.TimeRulerView_trv_showCursorText, true)
         cursorLinePositionPercentage =
             typedArray.getFloat(R.styleable.TimeRulerView_trv_cursorLinePosition, 0.3f)
         cursorLineColor =
@@ -399,7 +402,8 @@ open class TimeRulerView @JvmOverloads constructor(
             paint.strokeWidth = cursorLineWidth
             canvas.drawLine(0f, cursorLinePosition, width.toFloat(), cursorLinePosition, paint)
             paint.strokeWidth = 1f
-
+        }
+        if (showCursorText) {
             val text = simpleDateFormat2.format(cursorTimeValue)
 
             val rect = Rect()
@@ -546,6 +550,15 @@ open class TimeRulerView @JvmOverloads constructor(
         const val STATUS_DOWN = STATUS_NONE + 1
         const val STATUS_SCROLL = STATUS_DOWN + 1
         const val STATUS_SCROLL_FLING = STATUS_SCROLL + 1
+    }
+
+    private var onCursorListener: OnCursorListener? = null
+    fun setOnCursorListener(onCursorListener: OnCursorListener) {
+        this.onCursorListener = onCursorListener
+    }
+
+    interface OnCursorListener {
+        fun onProgressChanged(cursorTimeValue: Long)
     }
 }
 

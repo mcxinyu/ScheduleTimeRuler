@@ -17,6 +17,7 @@
         <!--region 游标线-->
         <!--是否显示游标线-->
         <attr name="trv_showCursorLine" format="boolean" />
+        <attr name="trv_showCursorText" format="boolean" />
         <!--游标相对view width的位置  0.0f～ 1.0f -->
         <attr name="trv_cursorLinePosition" format="float" />
         <attr name="trv_cursorLineWidth" format="dimension|reference" />
