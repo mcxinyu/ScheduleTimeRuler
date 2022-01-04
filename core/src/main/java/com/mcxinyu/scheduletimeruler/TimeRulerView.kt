@@ -16,7 +16,10 @@ import java.util.*
 import kotlin.math.ceil
 import kotlin.properties.Delegates
 import androidx.core.content.res.ResourcesCompat
+import java.lang.IllegalArgumentException
+import java.text.SimpleDateFormat
 import kotlin.math.max
+import kotlin.math.min
 
 
 /**
@@ -57,16 +60,6 @@ open class TimeRulerView @JvmOverloads constructor(
     protected var cursorLinePositionPercentage: Float
     protected var cursorLinePosition by Delegates.notNull<Float>()
 
-    /**
-     * 游标所在位置时间
-     */
-    var cursorTimeValue = System.currentTimeMillis()
-        set(value) {
-            field = value
-
-            invalidate()
-        }
-
     protected var showCursorLine: Boolean
 
     @ColorInt
@@ -84,6 +77,17 @@ open class TimeRulerView @JvmOverloads constructor(
 
     protected var timeModel = TimeModel()
         private set
+
+    /**
+     * 游标所在位置时间
+     */
+    var cursorTimeValue = System.currentTimeMillis()
+        set(value) {
+            if (value < timeModel.startTimeValue) field = timeModel.startTimeValue
+            else if (value > timeModel.endTimeValue) field = timeModel.endTimeValue
+            else field = value
+            invalidate()
+        }
 
     /**
      * 每毫秒时间占用像素
@@ -204,11 +208,37 @@ open class TimeRulerView @JvmOverloads constructor(
         paint.isDither = true
         paint.style = Paint.Style.FILL_AND_STROKE
         typeface?.let { paint.typeface = typeface }
+    }
 
-        if (cursorTimeValue < timeModel.startTimeValue)
-            cursorTimeValue = timeModel.startTimeValue
-        else if (cursorTimeValue > timeModel.endTimeValue)
-            cursorTimeValue = timeModel.endTimeValue
+    /**
+     * 设置时间范围，接受同一天的时间
+     *
+     * @param start Long
+     * @param end Long
+     */
+    fun setRange(start: Long, end: Long) {
+        if (start >= end) {
+            throw IllegalArgumentException("the start time must be greater than the end time")
+        }
+
+        val sCalendar = Calendar.getInstance().apply {
+            time = Date(start)
+        }
+        val eCalendar = Calendar.getInstance().apply {
+            time = Date(end)
+        }
+
+        if (sCalendar[Calendar.YEAR] != eCalendar[Calendar.YEAR] ||
+            sCalendar[Calendar.MONTH] != eCalendar[Calendar.MONTH] ||
+            sCalendar[Calendar.DAY_OF_MONTH] != eCalendar[Calendar.DAY_OF_MONTH]
+        ) {
+            throw IllegalArgumentException("the start time and end time must be the same day")
+        }
+
+        timeModel.startTimeValue = start
+        timeModel.endTimeValue = end
+
+        cursorTimeValue = cursorTimeValue
     }
 
     override fun onSizeChanged(width: Int, height: Int, oldw: Int, oldh: Int) {
@@ -291,7 +321,14 @@ open class TimeRulerView @JvmOverloads constructor(
             val x = baselinePosition - keyTickHeight
             val y = frontLastTimePosition - tickSpacePixel * i
 
-            onDrawTickBaseline(canvas, x, y, timeValue)
+            onDrawTickBaseline(
+                canvas,
+                baselinePosition,
+                y,
+                baselinePosition + baselineWidth,
+                min(y + tickSpacePixel, cursorLinePosition),
+                timeValue
+            )
 
             onDrawTickLine(canvas, x, y, timeValue)
             onDrawTickText(canvas, x, y, timeValue)
@@ -302,20 +339,29 @@ open class TimeRulerView @JvmOverloads constructor(
         val backCount = (height - cursorLinePosition) / tickSpacePixel
 
         //从游标线往后画
-        for (i in 0 until ceil(backCount.toDouble()).toInt()) {
+        for (i in 0..ceil(backCount.toDouble()).toInt()) {
             val timeValue = backFirstTimeValue + timeModel.unitTimeValue * i
 
             val x = baselinePosition - keyTickHeight
             val y = backFirstTimePosition + tickSpacePixel * i
 
-            if (timeValue < timeModel.endTimeValue) {
-                onDrawTickBaseline(canvas, x, y, timeValue)
+            onDrawTickBaseline(
+                canvas,
+                baselinePosition,
+                min(y, cursorLinePosition),
+                baselinePosition + baselineWidth,
+                y + min(
+                    tickSpacePixel,
+                    (timeModel.endTimeValue - timeValue) * millisecondUnitPixel
+                ),
+                timeValue
+            )
+            if (timeValue <= timeModel.endTimeValue) {
+                onDrawTickLine(canvas, x, y, timeValue)
+                onDrawTickText(canvas, x, y, timeValue)
             }
 
-            onDrawTickLine(canvas, x, y, timeValue)
-            onDrawTickText(canvas, x, y, timeValue)
-
-            if (timeValue > timeModel.endTimeValue) {
+            if (timeValue >= timeModel.endTimeValue) {
                 break
             }
         }
@@ -327,7 +373,7 @@ open class TimeRulerView @JvmOverloads constructor(
             paint.textAlign = Paint.Align.LEFT
             paint.textSize = tickTextSize
 
-            val text = simpleDateFormat.format(timeValue)
+            val text = onGetSimpleDateFormat().format(timeValue)
 
             val rect = Rect()
             paint.getTextBounds(text, 0, text.length, rect)
@@ -366,16 +412,16 @@ open class TimeRulerView @JvmOverloads constructor(
         }
     }
 
-    protected open fun onDrawTickBaseline(canvas: Canvas, x: Float, y: Float, timeValue: Long) {
+    protected open fun onDrawTickBaseline(
+        canvas: Canvas,
+        x1: Float, y1: Float,
+        x2: Float, y2: Float,
+        timeValue: Long
+    ) {
         if (showBaseline) {
             paint.color = baselineColor
 
-            val rect = Rect(
-                baselinePosition.toInt(),
-                y.toInt(),
-                (baselinePosition + baselineWidth).toInt(),
-                (y + tickSpacePixel).toInt()
-            )
+            val rect = Rect(x1.toInt(), y1.toInt(), x2.toInt(), y2.toInt())
             canvas.drawRect(rect, paint)
         }
     }
@@ -487,6 +533,10 @@ open class TimeRulerView @JvmOverloads constructor(
                 status = STATUS_DOWN
             }
         }
+    }
+
+    open fun onGetSimpleDateFormat(): SimpleDateFormat {
+        return simpleDateFormat
     }
 
     companion object {
