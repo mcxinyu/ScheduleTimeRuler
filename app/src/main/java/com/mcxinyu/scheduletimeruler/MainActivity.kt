@@ -16,6 +16,6 @@ class MainActivity : AppCompatActivity() {
         }
 //        inflate.timeRuler.cursorTimeValue = calendar.timeInMillis
 
-        inflate.timeRuler.mode = ScaleTimeRulerView.Mode.MODE_UINT_30_MIN
+//        inflate.timeRuler.mode = ScaleTimeRulerView.Mode.MODE_UINT_30_MIN
     }
 }

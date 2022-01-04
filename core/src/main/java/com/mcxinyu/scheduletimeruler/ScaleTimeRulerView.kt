@@ -2,6 +2,7 @@ package com.mcxinyu.scheduletimeruler
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Canvas
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
@@ -91,6 +92,17 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
             scaleFactor = 1f
         }
 
+        Log.d(
+            TAG,
+            """
+            ${"%2f".format(maxMillisecondUnitPixel)}/${"%2f".format(millisecondUnitPixel)}=${
+                "%2f".format(
+                    maxMillisecondUnitPixel / millisecondUnitPixel
+                )
+            }
+        """.trimIndent()
+        )
+
         onScale(timeModel, millisecondUnitPixel)
 
         scaleRatio *= scaleFactor
@@ -119,8 +131,19 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
         if (scaleGestureDetector.isInProgress) {
             return false
         }
+        if (status == STATUS_ZOOM) {
+            return false
+        }
 
         return super.onScroll(e1, e2, distanceX, distanceY)
+    }
+
+    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float):
+            Boolean {
+        if (status == STATUS_ZOOM) {
+            return false
+        }
+        return super.onFling(e1, e2, velocityX, velocityY)
     }
 
     /**
@@ -134,6 +157,8 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
         timeModel.unitTimeValue = unitTimeValue
 
         scaleRatio = (60 * 1000f) / timeModel.unitTimeValue
+
+        invalidate()
     }
 
     companion object {
