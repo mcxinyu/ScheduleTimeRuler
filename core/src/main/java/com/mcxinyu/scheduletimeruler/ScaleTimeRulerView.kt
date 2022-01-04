@@ -92,16 +92,14 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
             scaleFactor = 1f
         }
 
-        Log.d(
-            TAG,
-            """
-            ${"%2f".format(maxMillisecondUnitPixel)}/${"%2f".format(millisecondUnitPixel)}=${
-                "%2f".format(
-                    maxMillisecondUnitPixel / millisecondUnitPixel
-                )
-            }
-        """.trimIndent()
-        )
+        mode = when {
+            maxMillisecondUnitPixel / millisecondUnitPixel > 140 -> Mode.MODE_UINT_2_HOUR
+            maxMillisecondUnitPixel / millisecondUnitPixel > 70 -> Mode.MODE_UINT_1_HOUR
+            maxMillisecondUnitPixel / millisecondUnitPixel > 30 -> Mode.MODE_UINT_30_MIN
+            maxMillisecondUnitPixel / millisecondUnitPixel > 11 -> Mode.MODE_UINT_15_MIN
+            maxMillisecondUnitPixel / millisecondUnitPixel > 3 -> Mode.MODE_UINT_5_MIN
+            else -> Mode.MODE_UINT_1_MIN
+        }
 
         onScale(timeModel, millisecondUnitPixel)
 
