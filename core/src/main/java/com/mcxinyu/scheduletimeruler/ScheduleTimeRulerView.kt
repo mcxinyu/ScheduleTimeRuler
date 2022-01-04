@@ -10,7 +10,7 @@ import com.mcxinyu.scheduletimeruler.ScheduleTimeRulerView
  */
 class ScheduleTimeRulerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
-) : TimeRulerView(context, attrs) {
+) : ScaleTimeRulerView(context, attrs) {
 
     init {
         Log.d(TAG, "to-do")
