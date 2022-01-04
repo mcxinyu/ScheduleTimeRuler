@@ -1,4 +1,4 @@
-package com.mcxinyu.scheduletimeruler
+package com.mcxinyu.scheduletimeruler.model
 
 import java.util.*
 

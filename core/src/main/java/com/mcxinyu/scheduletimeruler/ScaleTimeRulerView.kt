@@ -2,12 +2,10 @@ package com.mcxinyu.scheduletimeruler
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Canvas
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
-import com.mcxinyu.scheduletimeruler.ScheduleTimeRulerView
+import com.mcxinyu.scheduletimeruler.model.TimeModel
 
 /**
  * @author [yuefeng](mailto:mcxinyu@foxmail.com) in 2022/1/3.

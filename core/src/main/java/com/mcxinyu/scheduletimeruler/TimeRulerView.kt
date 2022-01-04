@@ -4,10 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
-import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.Scroller
 import androidx.annotation.ColorInt
@@ -16,9 +14,9 @@ import java.util.*
 import kotlin.math.ceil
 import kotlin.properties.Delegates
 import androidx.core.content.res.ResourcesCompat
+import com.mcxinyu.scheduletimeruler.model.TimeModel
 import java.lang.IllegalArgumentException
 import java.text.SimpleDateFormat
-import kotlin.math.max
 import kotlin.math.min
 
 
@@ -299,6 +297,8 @@ open class TimeRulerView @JvmOverloads constructor(
         onDrawCursor(canvas)
     }
 
+    private val rect = Rect()
+
     /**
      * 画刻度
      * @param canvas Canvas
@@ -378,7 +378,6 @@ open class TimeRulerView @JvmOverloads constructor(
 
             val text = onGetSimpleDateFormat().format(timeValue)
 
-            val rect = Rect()
             paint.getTextBounds(text, 0, text.length, rect)
             val w = rect.width()
             val h = rect.height()
@@ -406,7 +405,6 @@ open class TimeRulerView @JvmOverloads constructor(
         if (showCursorText) {
             val text = simpleDateFormat2.format(cursorTimeValue)
 
-            val rect = Rect()
             paint.getTextBounds(text, 0, text.length, rect)
 
 //            val x = width * baselinePosition - normalTickHeight
@@ -425,7 +423,7 @@ open class TimeRulerView @JvmOverloads constructor(
         if (showBaseline) {
             paint.color = baselineColor
 
-            val rect = Rect(x1.toInt(), y1.toInt(), x2.toInt(), y2.toInt())
+            rect.set(x1.toInt(), y1.toInt(), x2.toInt(), y2.toInt())
             canvas.drawRect(rect, paint)
         }
     }
@@ -434,7 +432,7 @@ open class TimeRulerView @JvmOverloads constructor(
         if (showBaseline) {
             paint.color = baselineOutDayColor
 
-            val rect = Rect(
+            rect.set(
                 baselinePosition.toInt(),
                 0,
                 (baselinePosition + baselineWidth).toInt(),
