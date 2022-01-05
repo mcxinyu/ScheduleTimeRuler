@@ -1,11 +1,12 @@
-package com.mcxinyu.scheduletimeruler
+package com.mcxinyu.scheduletimerulerdemo
 
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.mcxinyu.scheduletimeruler.ScaleTimeRulerView
 import com.mcxinyu.scheduletimeruler.ScheduleTimeRulerView.OnCardClickListener
-import com.mcxinyu.scheduletimeruler.databinding.ActivityMainBinding
 import com.mcxinyu.scheduletimeruler.model.CardModel
+import com.mcxinyu.scheduletimerulerdemo.databinding.ActivityMainBinding
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -60,7 +61,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun testScale() {
-        inflate.timeRuler.mode = ScaleTimeRulerView.Mode.MODE_UINT_1_HOUR
+        inflate.timeRuler.scaleLevel = ScaleTimeRulerView.Level.LEVEL_UINT_1_HOUR
     }
 
     private fun testBase() {

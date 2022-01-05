@@ -39,7 +39,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.mcxinyu'
                 artifactId = 'scheduletimeruler'
-                version = '2022.1.5'
+                version = core_version
             }
         }
     }
