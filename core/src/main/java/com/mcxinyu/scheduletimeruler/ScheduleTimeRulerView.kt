@@ -1,14 +1,16 @@
 package com.mcxinyu.scheduletimeruler
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
+import android.graphics.drawable.ColorDrawable
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.util.AttributeSet
-import com.mcxinyu.scheduletimeruler.model.ScheduleModel
+import android.view.MotionEvent
+import androidx.core.content.res.ResourcesCompat
+import com.mcxinyu.scheduletimeruler.model.CardModel
+import com.mcxinyu.scheduletimeruler.model.CardPositionInfo
 import kotlin.math.max
 
 /**
@@ -18,33 +20,49 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : ScaleTimeRulerView(context, attrs) {
 
-    var schedules: List<ScheduleModel> = listOf()
-        set(value) {
-            field = value
-            invalidate()
-        }
+    private var blockMargin: Float
+    private var blockWidth: Float
 
-    private val rect = Rect()
+    private var datas = mutableListOf<CardPositionInfo>()
+    fun setDatas(list: List<CardModel>) {
+        datas = list.map { CardPositionInfo(it) }.toMutableList()
+        invalidate()
+    }
+
     private val dp16 = 16.toPx(context)
 
     private val textPaint = TextPaint()
 
     init {
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.ScheduleTimeRulerView)
+
+        blockWidth = typedArray.getDimension(
+            R.styleable.ScheduleTimeRulerView_strv_blockWidth,
+            128.toPx(context)
+        )
+        blockMargin = typedArray.getDimension(
+            R.styleable.ScheduleTimeRulerView_strv_blockMargin,
+            16.toPx(context)
+        )
+
+        typedArray.recycle()
+
         textPaint.textAlign = Paint.Align.LEFT
-        textPaint.textSize = tickTextSize * 0.9f
         typeface?.let { textPaint.typeface = typeface }
     }
 
     override fun onDraw(canvas: Canvas) {
 
-        val left = baselinePosition + dp16
-        val right = baselinePosition + dp16 * 10
+        val left = baselinePosition + blockMargin
+        val right = left + blockWidth
 
-        for (schedule in schedules) {
+        for (schedule in datas) {
+            schedule.reset()
+
             val top =
-                cursorLinePosition + (schedule.startTime - cursorTimeValue) * millisecondUnitPixel
+                cursorLinePosition + (schedule.model.startTime - cursorTimeValue) * millisecondUnitPixel
             val bottom =
-                cursorLinePosition + (schedule.endTime - cursorTimeValue) * millisecondUnitPixel
+                cursorLinePosition + (schedule.model.endTime - cursorTimeValue) * millisecondUnitPixel
 
             if (top > scrollY + height) {
                 continue
@@ -53,32 +71,50 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
                 continue
             }
 
-            onDrawSchedule(canvas, schedule, left, top, right, bottom)
+            schedule.apply {
+                this.left = left
+                this.top = top
+                this.right = right
+                this.bottom = bottom
+            }
+            onDrawCard(canvas, schedule.model, left, top, right, bottom)
         }
 
         super.onDraw(canvas)
     }
 
-    protected open fun onDrawSchedule(
+    protected open fun onDrawCard(
         canvas: Canvas,
-        schedule: ScheduleModel,
+        schedule: CardModel,
         left: Float, top: Float, right: Float, bottom: Float
     ) {
-        rect.left = left.toInt()
-        rect.top = top.toInt()
-        rect.right = right.toInt()
-        rect.bottom = bottom.toInt()
-
         //region draw range
-        textPaint.color = schedule.background
-        canvas.drawRect(rect, textPaint)
+        val drawable = ResourcesCompat.getDrawable(resources, schedule.background, null)
+        drawable?.let {
+            if (it is ColorDrawable) {
+                textPaint.color = it.color
+                canvas.drawRoundRect(left, top, right, bottom, dp16 / 4, dp16 / 4, textPaint)
+            }
+//            else {
+//                val toBitmap = it.toBitmap()
+//                val createScaledBitmap =
+//                    Bitmap.createScaledBitmap(
+//                        toBitmap,
+//                        (right - left).toInt(),
+//                        ((right - left) * toBitmap.height / toBitmap.width).toInt(),
+//                        true
+//                    )
+//
+//                canvas.drawBitmap(createScaledBitmap, left, top, textPaint)
+//            }
+        }
         //endregion
-
-        textPaint.color = schedule.textColor
 
         val vertical = dp16 / 8
 
         //region draw title
+        textPaint.textSize = tickTextSize
+        textPaint.color = schedule.titleColor
         val titleLayout = StaticLayout(
             schedule.title,
             textPaint,
@@ -103,6 +139,8 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
         //endregion
 
         //region draw text
+        textPaint.textSize = tickTextSize * 0.9f
+        textPaint.color = schedule.textColor
         val textLayout = StaticLayout(
             schedule.text,
             textPaint,
@@ -121,6 +159,27 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
             canvas.restore()
         }
         //endregion
+    }
+
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
+        onCardClickListener?.let { listener ->
+            datas.firstOrNull {
+                it.left < e.x && it.right > e.x && it.top < e.y && it.bottom > e.y
+            }?.let {
+                listener.onClick(it.model)
+            }
+        }
+
+        return super.onSingleTapUp(e)
+    }
+
+    private var onCardClickListener: OnCardClickListener? = null
+    fun setOnCardClickListener(l: OnCardClickListener) {
+        onCardClickListener = l
+    }
+
+    interface OnCardClickListener {
+        fun onClick(model: CardModel)
     }
 
     companion object {

@@ -12,7 +12,7 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:trv_baselineWidth="5dp" />
+        app:trv_font="@font/rubik_regular" />
 
     <!--    <View-->
     <!--        android:layout_width="0dp"-->

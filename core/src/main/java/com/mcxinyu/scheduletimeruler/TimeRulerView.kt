@@ -115,7 +115,7 @@ open class TimeRulerView @JvmOverloads constructor(
         showBaseline =
             typedArray.getBoolean(R.styleable.TimeRulerView_trv_showBaseline, true)
         baselinePositionPercentage =
-            typedArray.getFloat(R.styleable.TimeRulerView_trv_baselinePosition, 0.3f)
+            typedArray.getFloat(R.styleable.TimeRulerView_trv_baselinePosition, 0.25f)
         baselineColor =
             typedArray.getColor(R.styleable.TimeRulerView_trv_baselineColor, Color.LTGRAY)
         baselineOutDayColor =

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <declare-styleable name="ScheduleTimeRulerView">
+        <attr name="strv_blockWidth" format="dimension|reference" />
+        <attr name="strv_blockMargin" format="dimension|reference" />
+    </declare-styleable>
+
     <declare-styleable name="TimeRulerView">
         <attr name="trv_font" format="reference" />
 

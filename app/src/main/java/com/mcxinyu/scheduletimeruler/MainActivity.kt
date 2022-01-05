@@ -1,9 +1,11 @@
 package com.mcxinyu.scheduletimeruler
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.mcxinyu.scheduletimeruler.ScheduleTimeRulerView.OnCardClickListener
 import com.mcxinyu.scheduletimeruler.databinding.ActivityMainBinding
-import com.mcxinyu.scheduletimeruler.model.ScheduleModel
+import com.mcxinyu.scheduletimeruler.model.CardModel
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -22,32 +24,39 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun testSchedule() {
-        inflate.timeRuler.schedules = listOf(
-            ScheduleModel(
-                "120分钟",
-                "2022-01-05T09:20:41~11:00:54",
-                1641345641000,
-                1641351654000
-            ),
-            ScheduleModel(
-                "120分钟",
-                "2022-01-05T11:30:54~14:00:28",
-                1641353454000,
-                1641362428000
-            ),
-            ScheduleModel(
-                "120分钟",
-                "2022-01-05T14:14:28~16:08:48",
-                1641363268000,
-                1641370128000
-            ),
-            ScheduleModel(
-                "70分钟",
-                "2022-01-05T16:48:48~17:00:43",
-                1641372528000,
-                1641373243000
-            ),
+        inflate.timeRuler.setDatas(
+            listOf(
+                CardModel(
+                    "噫噫噫",
+                    "2022-01-05T09:20:41~11:00:54",
+                    1641345641000,
+                    1641351654000,
+                ),
+                CardModel(
+                    "尔尔尔",
+                    "2022-01-05T11:30:54~14:00:28",
+                    1641353454000,
+                    1641362428000,
+                ),
+                CardModel(
+                    "伞伞伞",
+                    "2022-01-05T14:14:28~16:08:48",
+                    1641363268000,
+                    1641370128000,
+                ),
+                CardModel(
+                    "丝丝丝",
+                    "2022-01-05T16:48:48~17:00:43",
+                    1641372528000,
+                    1641373243000,
+                ),
+            )
         )
+        inflate.timeRuler.setOnCardClickListener(object : OnCardClickListener {
+            override fun onClick(model: CardModel) {
+                Toast.makeText(this@MainActivity, model.title, Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     private fun testScale() {
