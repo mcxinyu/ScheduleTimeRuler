@@ -27,7 +27,7 @@ open class TimeRulerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : View(context, attrs), GestureDetector.OnGestureListener {
 
-    private var typeface: Typeface? = null
+    protected var typeface: Typeface? = null
 
     @ColorInt
     protected var tickTextColor: Int
@@ -70,8 +70,7 @@ open class TimeRulerView @JvmOverloads constructor(
     protected var baselinePosition by Delegates.notNull<Float>()
     protected var showBaseline: Boolean
 
-    protected lateinit var paint: Paint
-        private set
+    private val paint = Paint()
 
     protected var timeModel = TimeModel()
         private set
@@ -204,7 +203,6 @@ open class TimeRulerView @JvmOverloads constructor(
     }
 
     private fun initThing() {
-        paint = Paint()
         paint.isAntiAlias = true
         paint.isDither = true
         paint.style = Paint.Style.FILL_AND_STROKE
