@@ -14,7 +14,7 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : TimeRulerView(context, attrs), ScaleGestureDetector.OnScaleGestureListener {
 
-    var mode: Mode = Mode.MODE_UINT_1_MIN
+    var scaleLevel: Level = Level.LEVEL_UINT_1_MIN
         set(value) {
             if (field == value) {
                 return
@@ -22,22 +22,22 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
             field = value
             var unitTimeValue = timeModel.unitTimeValue
             when (value) {
-                Mode.MODE_UINT_1_MIN -> {
+                Level.LEVEL_UINT_1_MIN -> {
                     unitTimeValue = 60 * 1000
                 }
-                Mode.MODE_UINT_5_MIN -> {
+                Level.LEVEL_UINT_5_MIN -> {
                     unitTimeValue = 5 * 60 * 1000
                 }
-                Mode.MODE_UINT_15_MIN -> {
+                Level.LEVEL_UINT_15_MIN -> {
                     unitTimeValue = 15 * 60 * 1000
                 }
-                Mode.MODE_UINT_30_MIN -> {
+                Level.LEVEL_UINT_30_MIN -> {
                     unitTimeValue = 30 * 60 * 1000
                 }
-                Mode.MODE_UINT_1_HOUR -> {
+                Level.LEVEL_UINT_1_HOUR -> {
                     unitTimeValue = 60 * 60 * 1000
                 }
-                Mode.MODE_UINT_2_HOUR -> {
+                Level.LEVEL_UINT_2_HOUR -> {
                     unitTimeValue = 2 * 60 * 60 * 1000
                 }
             }
@@ -90,13 +90,13 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
             scaleFactor = 1f
         }
 
-        mode = when {
-            maxMillisecondUnitPixel / millisecondUnitPixel > 140 -> Mode.MODE_UINT_2_HOUR
-            maxMillisecondUnitPixel / millisecondUnitPixel > 70 -> Mode.MODE_UINT_1_HOUR
-            maxMillisecondUnitPixel / millisecondUnitPixel > 30 -> Mode.MODE_UINT_30_MIN
-            maxMillisecondUnitPixel / millisecondUnitPixel > 11 -> Mode.MODE_UINT_15_MIN
-            maxMillisecondUnitPixel / millisecondUnitPixel > 3 -> Mode.MODE_UINT_5_MIN
-            else -> Mode.MODE_UINT_1_MIN
+        scaleLevel = when {
+            maxMillisecondUnitPixel / millisecondUnitPixel > 140 -> Level.LEVEL_UINT_2_HOUR
+            maxMillisecondUnitPixel / millisecondUnitPixel > 70 -> Level.LEVEL_UINT_1_HOUR
+            maxMillisecondUnitPixel / millisecondUnitPixel > 30 -> Level.LEVEL_UINT_30_MIN
+            maxMillisecondUnitPixel / millisecondUnitPixel > 11 -> Level.LEVEL_UINT_15_MIN
+            maxMillisecondUnitPixel / millisecondUnitPixel > 3 -> Level.LEVEL_UINT_5_MIN
+            else -> Level.LEVEL_UINT_1_MIN
         }
 
         onScale(timeModel, millisecondUnitPixel)
@@ -163,12 +163,12 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
         const val STATUS_ZOOM = STATUS_SCROLL_FLING + 1
     }
 
-    enum class Mode {
-        MODE_UINT_1_MIN,
-        MODE_UINT_5_MIN,
-        MODE_UINT_15_MIN,
-        MODE_UINT_30_MIN,
-        MODE_UINT_1_HOUR,
-        MODE_UINT_2_HOUR,
+    enum class Level {
+        LEVEL_UINT_1_MIN,
+        LEVEL_UINT_5_MIN,
+        LEVEL_UINT_15_MIN,
+        LEVEL_UINT_30_MIN,
+        LEVEL_UINT_1_HOUR,
+        LEVEL_UINT_2_HOUR,
     }
 }
