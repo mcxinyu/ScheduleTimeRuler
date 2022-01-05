@@ -1,6 +1,7 @@
 ## ScheduleTimeRulerView
 [![](https://jitpack.io/v/mcxinyu/ScheduleTimeRuler.svg)](https://jitpack.io/#mcxinyu/ScheduleTimeRuler)
 
+#### 使用
 To get a Git project into your build:
 
 Step 1. Add the JitPack repository to your build file
