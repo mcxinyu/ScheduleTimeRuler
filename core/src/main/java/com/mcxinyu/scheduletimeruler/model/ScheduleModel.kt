@@ -12,8 +12,8 @@ data class ScheduleModel(
     val text: String = "",
     var startTime: Long,
     var endTime: Long,
-    @ColorInt val color: Int = Color.LTGRAY,
-    @ColorInt val textColor: Int = Color.BLACK
+    @ColorInt val background: Int = Color.LTGRAY,
+    @ColorInt val textColor: Int = Color.DKGRAY
 ) {
     init {
         if (startTime > endTime) {
