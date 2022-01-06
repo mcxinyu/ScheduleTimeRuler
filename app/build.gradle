@@ -33,12 +33,6 @@ android {
 }
 
 dependencies {
-    File localGradlePropertiesFile = project.rootProject.file('local.properties')
-    if (localGradlePropertiesFile.exists()) {
-        Properties localProperties = new Properties()
-        localProperties.load(localGradlePropertiesFile.newDataInputStream())
-        localProperties.each { key, value -> project.ext[key] = value }
-    }
 
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$desugar_jdk_libs"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
