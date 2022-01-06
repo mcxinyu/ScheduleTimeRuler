@@ -137,7 +137,7 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
     }
 
     private var lastScale = 0f
-    fun setScale(@FloatRange(from = 0.0, to = 1000.0) scale: Float) {
+    fun setScale(@FloatRange(from = 0.0, to = 100.0) scale: Float) {
         var scaleFactor = 0.9f + scale / 1000f
         if (lastScale < scale) {
             scaleFactor = 1 + min(1000f, scale) / 1000f
