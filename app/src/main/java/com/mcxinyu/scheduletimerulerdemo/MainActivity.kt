@@ -5,6 +5,7 @@ import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.mcxinyu.scheduletimeruler.ScaleTimeRulerView
 import com.mcxinyu.scheduletimeruler.ScheduleTimeRulerView.OnCardClickListener
+import com.mcxinyu.scheduletimeruler.TimeRulerView
 import com.mcxinyu.scheduletimeruler.model.CardModel
 import com.mcxinyu.scheduletimerulerdemo.databinding.ActivityMainBinding
 import java.util.*
@@ -82,6 +83,13 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
             }
         })
+//        inflate.timeRuler.onScrollListener = object : TimeRulerView.OnScrollListener {
+//            override fun onScrollStateChanged(newState: Int) {
+//            }
+//
+//            override fun onScrolled(dx: Int, dy: Int) {
+//            }
+//        }
     }
 
     private fun testBase() {
@@ -95,11 +103,11 @@ class MainActivity : AppCompatActivity() {
         val end = calendar.timeInMillis
         inflate.timeRuler.setRange(start, end)
 
-//        inflate.timeRuler.setOnCursorListener(object : TimeRulerView.OnCursorListener {
+//        inflate.timeRuler.onCursorListener = object : TimeRulerView.OnCursorListener {
 //            override fun onProgressChanged(cursorTimeValue: Long) {
 //                inflate.textViewCursor.text = simpleDateFormat2.format(cursorTimeValue)
 //            }
-//        })
+//        }
 //        inflate.textViewCursor.text = simpleDateFormat2.format(inflate.timeRuler.cursorTimeValue)
     }
 }

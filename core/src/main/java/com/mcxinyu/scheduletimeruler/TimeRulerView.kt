@@ -555,13 +555,13 @@ open class TimeRulerView @JvmOverloads constructor(
 
     var onCursorListener: OnCursorListener? = null
 
-    abstract class OnCursorListener {
-        fun onProgressChanged(cursorTimeValue: Long) {}
+    interface OnCursorListener {
+        fun onProgressChanged(cursorTimeValue: Long)
     }
 
     var onScrollListener: OnScrollListener? = null
 
-    abstract class OnScrollListener {
+    interface OnScrollListener {
         companion object {
             const val STATUS_IDLE = 0
             const val STATUS_DOWN = STATUS_IDLE + 1
@@ -575,14 +575,14 @@ open class TimeRulerView @JvmOverloads constructor(
          * @param newState     The updated scroll state. One of [STATUS_IDLE],
          * [STATUS_DOWN] or [STATUS_SCROLL] or [STATUS_SCROLL_FLING] or STATUS_ZOOM
          */
-        fun onScrollStateChanged(newState: Int) {}
+        fun onScrollStateChanged(newState: Int)
 
         /**
          *
          * @param dx The amount of horizontal scroll.
          * @param dy The amount of vertical scroll.
          */
-        fun onScrolled(dx: Int, dy: Int) {}
+        fun onScrolled(dx: Int, dy: Int)
     }
 }
 
