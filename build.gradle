@@ -8,7 +8,7 @@ buildscript {
     }
 
     ext {
-        core_version = "2022.1.6.1240"
+        core_version = "2022.1.6.1626"
         release_status = project.ext['release_status'].toBoolean()
         agp_version = "7.0.4"
         desugar_jdk_libs = "1.1.5"

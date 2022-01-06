@@ -1,6 +1,7 @@
 package com.mcxinyu.scheduletimerulerdemo
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.mcxinyu.scheduletimeruler.ScaleTimeRulerView
@@ -68,6 +69,15 @@ class MainActivity : AppCompatActivity() {
 //                obtain1_1.recycle()
             }
         })
+        inflate.timeRuler.onScrollListener = object : TimeRulerView.OnScrollListener {
+            override fun onScrollStateChanged(newState: Int) {
+                Log.d(TAG, "newState $newState")
+            }
+
+            override fun onScrolled(dx: Int, dy: Int) {
+                Log.d(TAG, "onScrolled $dx $dy")
+            }
+        }
     }
 
     private fun testScale() {
@@ -109,5 +119,9 @@ class MainActivity : AppCompatActivity() {
 //            }
 //        }
 //        inflate.textViewCursor.text = simpleDateFormat2.format(inflate.timeRuler.cursorTimeValue)
+    }
+
+    companion object{
+        val TAG = MainActivity::class.java.simpleName
     }
 }

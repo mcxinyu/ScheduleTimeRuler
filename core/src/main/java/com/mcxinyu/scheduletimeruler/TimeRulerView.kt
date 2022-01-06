@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -450,6 +451,11 @@ open class TimeRulerView @JvmOverloads constructor(
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         gestureDetectorCompat.onTouchEvent(event)
+        if (status != OnScrollListener.STATUS_SCROLL_FLING) {
+            if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
+                status = OnScrollListener.STATUS_IDLE
+            }
+        }
         return true
     }
 
@@ -459,11 +465,7 @@ open class TimeRulerView @JvmOverloads constructor(
         } else {
             scrollHappened = false
         }
-        if (e.action == MotionEvent.ACTION_UP || e.action == MotionEvent.ACTION_CANCEL) {
-            status = OnScrollListener.STATUS_IDLE
-        } else {
-            status = OnScrollListener.STATUS_DOWN
-        }
+        status = OnScrollListener.STATUS_DOWN
         return true
     }
 
@@ -522,25 +524,34 @@ open class TimeRulerView @JvmOverloads constructor(
             0, 0,
             0, maxY
         )
-
+        scroller.isFinished
         invalidate()
 
         return true
     }
 
+    private var currX: Int? = null
+    private var currY: Int? = null
     override fun computeScroll() {
+        super.computeScroll()
         if (scroller.computeScrollOffset()) {
-            val currY = scroller.currY
-            cursorTimeValue = timeModel.startTimeValue + (currY / millisecondUnitPixel).toLong()
+            val cX = scroller.currX
+            val cY = scroller.currY
+            cursorTimeValue = timeModel.startTimeValue + (cY / millisecondUnitPixel).toLong()
             if (cursorTimeValue > timeModel.endTimeValue) {
                 cursorTimeValue = timeModel.endTimeValue
             } else if (cursorTimeValue < timeModel.startTimeValue) {
                 cursorTimeValue = timeModel.startTimeValue
             }
+            if (currY != null && currX != null) {
+                onScrollListener?.onScrolled(scroller.currY - currY!!, scroller.currX - currX!!)
+            }
+            currX = scroller.currX
+            currY = scroller.currY
             invalidate()
         } else {
             if (status == OnScrollListener.STATUS_SCROLL_FLING) {
-                status = OnScrollListener.STATUS_DOWN
+                status = OnScrollListener.STATUS_IDLE
             }
         }
     }
@@ -563,10 +574,19 @@ open class TimeRulerView @JvmOverloads constructor(
 
     interface OnScrollListener {
         companion object {
+            //0
             const val STATUS_IDLE = 0
+
+            //1
             const val STATUS_DOWN = STATUS_IDLE + 1
+
+            //2
             const val STATUS_SCROLL = STATUS_DOWN + 1
+
+            //3
             const val STATUS_SCROLL_FLING = STATUS_SCROLL + 1
+
+            //4
             const val STATUS_ZOOM = STATUS_SCROLL_FLING + 1
         }
 

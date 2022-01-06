@@ -94,7 +94,11 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         scaleGestureDetector.onTouchEvent(event)
-        return super.onTouchEvent(event)
+        if (status != OnScrollListener.STATUS_ZOOM) {
+            return super.onTouchEvent(event)
+        } else {
+            return true
+        }
     }
 
     override fun onScale(detector: ScaleGestureDetector): Boolean {
