@@ -40,16 +40,10 @@
         <attr name="trv_cursorLineColor" format="color|reference" />
         <!--endregion-->
 
-        <!--region 关键刻度-->
+        <!--region 刻度-->
         <attr name="trv_keyTickHeight" format="dimension|reference" />
         <attr name="trv_keyTickWidth" format="dimension|reference" />
         <attr name="trv_keyTickColor" format="color|reference" />
-        <!--endregion-->
-
-        <!--region 普通刻度-->
-        <attr name="trv_normalTickHeight" format="float" />
-        <attr name="trv_normalTickWidth" format="float" />
-        <attr name="trv_normalTickColor" format="color|reference" />
         <!--endregion-->
 
         <attr name="trv_showTick" format="boolean" />

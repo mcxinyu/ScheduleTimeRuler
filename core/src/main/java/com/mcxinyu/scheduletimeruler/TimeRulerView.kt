@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -37,16 +36,6 @@ open class TimeRulerView @JvmOverloads constructor(
     protected var showTick: Boolean
     protected var maxTickSpace: Float
 
-    @Deprecated("keyTickColor")
-    @ColorInt
-    protected var normalTickColor: Int
-
-    @Deprecated("keyTickWidth")
-    protected var normalTickWidth: Float
-
-    @Deprecated("keyTickHeight")
-    protected var normalTickHeight: Float
-
     @ColorInt
     protected var keyTickColor: Int
     protected var keyTickWidth: Float
@@ -67,10 +56,6 @@ open class TimeRulerView @JvmOverloads constructor(
     protected var baselineColor: Int
     protected var baselineWidth: Float
     protected var baselinePositionPercentage: Float
-    fun setBaselinePositionPercentage2(x: Float) {
-
-    }
-
     protected var baselinePosition by Delegates.notNull<Float>()
     protected var showBaseline: Boolean
 
@@ -84,9 +69,11 @@ open class TimeRulerView @JvmOverloads constructor(
      */
     var cursorTimeValue = System.currentTimeMillis()
         set(value) {
-            if (value < timeModel.startTimeValue) field = timeModel.startTimeValue
-            else if (value > timeModel.endTimeValue) field = timeModel.endTimeValue
-            else field = value
+            field = when {
+                value < timeModel.startTimeValue -> timeModel.startTimeValue
+                value > timeModel.endTimeValue -> timeModel.endTimeValue
+                else -> value
+            }
             onCursorListener?.onProgressChanged(cursorTimeValue)
             invalidate()
         }
@@ -108,6 +95,7 @@ open class TimeRulerView @JvmOverloads constructor(
             field = value
             onScrollListener?.onScrollStateChanged(status)
         }
+
     protected var scroller = Scroller(context)
 
     init {
@@ -166,22 +154,6 @@ open class TimeRulerView @JvmOverloads constructor(
             typedArray.getColor(
                 R.styleable.TimeRulerView_trv_keyTickColor,
                 Color.GRAY
-            )
-
-        normalTickHeight =
-            typedArray.getDimension(
-                R.styleable.TimeRulerView_trv_normalTickHeight,
-                4.toPx(context)
-            )
-        normalTickWidth =
-            typedArray.getDimension(
-                R.styleable.TimeRulerView_trv_normalTickWidth,
-                1.toPx(context)
-            )
-        normalTickColor =
-            typedArray.getColor(
-                R.styleable.TimeRulerView_trv_normalTickColor,
-                Color.LTGRAY
             )
 
         showTick =
@@ -285,9 +257,9 @@ open class TimeRulerView @JvmOverloads constructor(
         var tickValueHeight = 0
         if (showTickText) {
             //让字体不要溢出，这里应该动态换算基线左边还有位置显示文本么？
-            paint.setTextSize(20.toPx(context))
+            paint.textSize = 20.toPx(context)
             val fontMetrics: Paint.FontMetrics = paint.getFontMetrics()
-            val ceil = Math.ceil((fontMetrics.bottom - fontMetrics.top).toDouble())
+            val ceil = ceil((fontMetrics.bottom - fontMetrics.top).toDouble())
             tickValueHeight = ceil.toInt()
         }
         return ((keyTickHeight + tickValueHeight) / baselinePositionPercentage + 0.5f).toInt()
@@ -469,12 +441,9 @@ open class TimeRulerView @JvmOverloads constructor(
         return true
     }
 
-    override fun onShowPress(e: MotionEvent) {
-    }
+    override fun onShowPress(e: MotionEvent) {}
 
-    override fun onSingleTapUp(e: MotionEvent): Boolean {
-        return performClick()
-    }
+    override fun onSingleTapUp(e: MotionEvent): Boolean = performClick()
 
     override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float):
             Boolean {
@@ -507,8 +476,7 @@ open class TimeRulerView @JvmOverloads constructor(
         return result
     }
 
-    override fun onLongPress(e: MotionEvent) {
-    }
+    override fun onLongPress(e: MotionEvent) {}
 
     override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float):
             Boolean {
@@ -556,9 +524,7 @@ open class TimeRulerView @JvmOverloads constructor(
         }
     }
 
-    open fun onGetSimpleDateFormat(): SimpleDateFormat {
-        return simpleDateFormat
-    }
+    open fun onGetSimpleDateFormat() = simpleDateFormat
 
     companion object {
         val TAG = TimeRulerView::class.java.simpleName

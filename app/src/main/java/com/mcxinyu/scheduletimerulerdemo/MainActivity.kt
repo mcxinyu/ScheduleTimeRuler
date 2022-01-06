@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                 ),
             )
         )
-        inflate.timeRuler.setOnCardClickListener(object : OnCardClickListener {
+        inflate.timeRuler.onCardClickListener = object : OnCardClickListener {
             override fun onClick(model: CardModel) {
 //                Toast.makeText(this@MainActivity, model.title, Toast.LENGTH_SHORT).show()
 
@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
 //                obtain1_0.recycle()
 //                obtain1_1.recycle()
             }
-        })
+        }
         inflate.timeRuler.onScrollListener = object : TimeRulerView.OnScrollListener {
             override fun onScrollStateChanged(newState: Int) {
                 Log.d(TAG, "newState $newState")
@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity() {
 //        inflate.textViewCursor.text = simpleDateFormat2.format(inflate.timeRuler.cursorTimeValue)
     }
 
-    companion object{
+    companion object {
         val TAG = MainActivity::class.java.simpleName
     }
 }

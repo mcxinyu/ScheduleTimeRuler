@@ -45,6 +45,8 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
                 }
             }
             updateScaleInfo(unitTimeValue * 5, unitTimeValue)
+
+            onScaleListener?.onScale(scaleLevel)
         }
 
     /**
@@ -150,14 +152,11 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
         lastScale = scale
     }
 
-    protected fun onScale(timeModel: TimeModel, unitPixel: Float) {
-
-    }
+    protected fun onScale(timeModel: TimeModel, unitPixel: Float) {}
 
     override fun onScaleBegin(detector: ScaleGestureDetector) = true
 
-    override fun onScaleEnd(detector: ScaleGestureDetector) {
-    }
+    override fun onScaleEnd(detector: ScaleGestureDetector) {}
 
     override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float):
             Boolean {
@@ -208,5 +207,11 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
         LEVEL_UNIT_30_MIN,
         LEVEL_UNIT_1_HOUR,
         LEVEL_UNIT_2_HOUR,
+    }
+
+    val onScaleListener: OnScaleListener? = null
+
+    interface OnScaleListener {
+        fun onScale(level: Level)
     }
 }

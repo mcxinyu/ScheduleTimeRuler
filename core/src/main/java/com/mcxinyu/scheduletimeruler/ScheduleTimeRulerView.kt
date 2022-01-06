@@ -173,10 +173,7 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
         return super.onSingleTapUp(e)
     }
 
-    private var onCardClickListener: OnCardClickListener? = null
-    fun setOnCardClickListener(l: OnCardClickListener) {
-        onCardClickListener = l
-    }
+    var onCardClickListener: OnCardClickListener? = null
 
     interface OnCardClickListener {
         fun onClick(model: CardModel)
