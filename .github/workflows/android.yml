@@ -21,4 +21,4 @@ jobs:
           java-version: 11
       - name: Build with Gradle
         id: build
-        run: chmod +x gradlew &&./gradlew assembleDebug
+        run: chmod +x gradlew &&./gradlew clean app:assembleDebug
