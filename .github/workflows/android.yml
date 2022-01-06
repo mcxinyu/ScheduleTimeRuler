@@ -1,0 +1,26 @@
+name: Release CI
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'build.gradle'
+  workflow_dispatch:
+    branches:
+      - 'main'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup jdk
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Build with Gradle
+        id: build
+        run: chmod +x gradlew &&./gradlew assembleDebug
