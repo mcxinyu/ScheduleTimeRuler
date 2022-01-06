@@ -2,11 +2,13 @@ package com.mcxinyu.scheduletimeruler
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Canvas
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
+import androidx.annotation.FloatRange
 import com.mcxinyu.scheduletimeruler.model.TimeModel
+import kotlin.math.min
 
 /**
  * @author [yuefeng](mailto:mcxinyu@foxmail.com) in 2022/1/3.
@@ -96,15 +98,24 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
     }
 
     override fun onScale(detector: ScaleGestureDetector): Boolean {
+        scale(detector.scaleFactor)
+
+        return millisecondUnitPixel < maxMillisecondUnitPixel || millisecondUnitPixel > minMillisecondUnitPixel
+    }
+
+    private fun scale(scaleFactor: Float) {
         status = OnScrollListener.STATUS_ZOOM
-        var scaleFactor = detector.scaleFactor
-        millisecondUnitPixel *= scaleFactor
+
+        Log.d(TAG, "scaleFactor $scaleFactor")
+        var factor = scaleFactor
+
+        millisecondUnitPixel *= factor
         if (millisecondUnitPixel > maxMillisecondUnitPixel) {
             millisecondUnitPixel = maxMillisecondUnitPixel
-            scaleFactor = 1f
+            factor = 1f
         } else if (millisecondUnitPixel < minMillisecondUnitPixel) {
             millisecondUnitPixel = minMillisecondUnitPixel
-            scaleFactor = 1f
+            factor = 1f
         }
 
         scaleLevel = when {
@@ -118,13 +129,21 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
 
         onScale(timeModel, millisecondUnitPixel)
 
-        scaleRatio *= scaleFactor
+        scaleRatio *= factor
 
         tickSpacePixel = timeModel.unitTimeValue * millisecondUnitPixel
 
         invalidate()
+    }
 
-        return millisecondUnitPixel < maxMillisecondUnitPixel || millisecondUnitPixel > minMillisecondUnitPixel
+    private var lastScale = 0f
+    fun setScale(@FloatRange(from = 0.0, to = 1000.0) scale: Float) {
+        var scaleFactor = 0.9f + scale / 1000f
+        if (lastScale < scale) {
+            scaleFactor = 1 + min(1000f, scale) / 1000f
+        }
+        scale(scaleFactor)
+        lastScale = scale
     }
 
     protected fun onScale(timeModel: TimeModel, unitPixel: Float) {

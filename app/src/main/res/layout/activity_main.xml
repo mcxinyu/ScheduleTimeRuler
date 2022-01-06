@@ -12,6 +12,15 @@
         app:layout_constraintTop_toTopOf="parent"
         app:trv_font="@font/rubik_regular" />
 
+    <SeekBar
+        android:id="@+id/search_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:max="100"
+        android:progress="100"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
     <!--    <View-->
     <!--        android:layout_width="0dp"-->
     <!--        android:layout_height="1dp"-->

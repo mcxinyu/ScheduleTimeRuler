@@ -1,6 +1,7 @@
 package com.mcxinyu.scheduletimerulerdemo
 
 import android.os.Bundle
+import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.mcxinyu.scheduletimeruler.ScaleTimeRulerView
 import com.mcxinyu.scheduletimeruler.ScheduleTimeRulerView.OnCardClickListener
@@ -70,6 +71,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun testScale() {
         inflate.timeRuler.scaleLevel = ScaleTimeRulerView.Level.LEVEL_UNIT_1_HOUR
+        inflate.searchBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                inflate.timeRuler.setScale(progress.toFloat())
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+        })
     }
 
     private fun testBase() {
