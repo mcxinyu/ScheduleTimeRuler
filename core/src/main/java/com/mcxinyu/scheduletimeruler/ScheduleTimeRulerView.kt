@@ -20,8 +20,8 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : ScaleTimeRulerView(context, attrs) {
 
-    private var blockMargin: Float
-    private var blockWidth: Float
+    private var cardMargin: Float
+    private var cardWidth: Float
 
     private var datas = mutableListOf<CardPositionInfo>()
     fun setDatas(list: List<CardModel>) {
@@ -36,12 +36,12 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.ScheduleTimeRulerView)
 
-        blockWidth = typedArray.getDimension(
-            R.styleable.ScheduleTimeRulerView_strv_blockWidth,
+        cardWidth = typedArray.getDimension(
+            R.styleable.ScheduleTimeRulerView_strv_cardWidth,
             128.toPx(context)
         )
-        blockMargin = typedArray.getDimension(
-            R.styleable.ScheduleTimeRulerView_strv_blockMargin,
+        cardMargin = typedArray.getDimension(
+            R.styleable.ScheduleTimeRulerView_strv_cardMargin,
             16.toPx(context)
         )
 
@@ -53,8 +53,8 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
 
-        val left = baselinePosition + blockMargin
-        val right = left + blockWidth
+        val left = baselinePosition + cardMargin
+        val right = left + cardWidth
 
         for (schedule in datas) {
             schedule.reset()

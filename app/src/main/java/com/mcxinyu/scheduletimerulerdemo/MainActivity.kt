@@ -1,7 +1,6 @@
 package com.mcxinyu.scheduletimerulerdemo
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.mcxinyu.scheduletimeruler.ScaleTimeRulerView
 import com.mcxinyu.scheduletimeruler.ScheduleTimeRulerView.OnCardClickListener
@@ -55,13 +54,22 @@ class MainActivity : AppCompatActivity() {
         )
         inflate.timeRuler.setOnCardClickListener(object : OnCardClickListener {
             override fun onClick(model: CardModel) {
-                Toast.makeText(this@MainActivity, model.title, Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this@MainActivity, model.title, Toast.LENGTH_SHORT).show()
+
+//                val downtime = SystemClock.uptimeMillis()
+//
+//                val obtain1_0 = MotionEvent.obtain(downtime, downtime, MotionEvent.ACTION_MOVE, 0f, 0f, 0)
+//                val obtain1_1 = MotionEvent.obtain(downtime, downtime, MotionEvent.ACTION_MOVE, 100f, 100f, 0)
+//                inflate.timeRuler.onTouchEvent(obtain1_0)
+//                inflate.timeRuler.onTouchEvent(obtain1_1)
+//                obtain1_0.recycle()
+//                obtain1_1.recycle()
             }
         })
     }
 
     private fun testScale() {
-        inflate.timeRuler.scaleLevel = ScaleTimeRulerView.Level.LEVEL_UINT_1_HOUR
+        inflate.timeRuler.scaleLevel = ScaleTimeRulerView.Level.LEVEL_UNIT_1_HOUR
     }
 
     private fun testBase() {

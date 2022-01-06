@@ -9,15 +9,14 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.Scroller
 import androidx.annotation.ColorInt
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GestureDetectorCompat
+import com.mcxinyu.scheduletimeruler.model.TimeModel
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.ceil
-import kotlin.properties.Delegates
-import androidx.core.content.res.ResourcesCompat
-import com.mcxinyu.scheduletimeruler.model.TimeModel
-import java.lang.IllegalArgumentException
-import java.text.SimpleDateFormat
 import kotlin.math.min
+import kotlin.properties.Delegates
 
 
 /**
@@ -67,6 +66,10 @@ open class TimeRulerView @JvmOverloads constructor(
     protected var baselineColor: Int
     protected var baselineWidth: Float
     protected var baselinePositionPercentage: Float
+    fun setBaselinePositionPercentage2(x: Float) {
+
+    }
+
     protected var baselinePosition by Delegates.notNull<Float>()
     protected var showBaseline: Boolean
 
@@ -99,7 +102,11 @@ open class TimeRulerView @JvmOverloads constructor(
 
     protected var scrollHappened: Boolean = false
     protected var gestureDetectorCompat = GestureDetectorCompat(context, this)
-    protected var status: Int = STATUS_NONE
+    protected var status: Int = OnScrollListener.STATUS_IDLE
+        set(value) {
+            field = value
+            onScrollListener?.onScrollStateChanged(status)
+        }
     protected var scroller = Scroller(context)
 
     init {
@@ -447,15 +454,16 @@ open class TimeRulerView @JvmOverloads constructor(
     }
 
     override fun onDown(e: MotionEvent): Boolean {
-        if (status == STATUS_SCROLL_FLING) {
+        if (status == OnScrollListener.STATUS_SCROLL_FLING) {
             scroller.forceFinished(true)
         } else {
             scrollHappened = false
         }
-        status = STATUS_DOWN
-//        if (e.action == MotionEvent.ACTION_UP) {
-//            status = STATUS_NONE
-//        }
+        if (e.action == MotionEvent.ACTION_UP || e.action == MotionEvent.ACTION_CANCEL) {
+            status = OnScrollListener.STATUS_IDLE
+        } else {
+            status = OnScrollListener.STATUS_DOWN
+        }
         return true
     }
 
@@ -476,7 +484,7 @@ open class TimeRulerView @JvmOverloads constructor(
             return true
         }
 
-        status = STATUS_SCROLL
+        status = OnScrollListener.STATUS_SCROLL
 
         val increment = distanceY / millisecondUnitPixel
         cursorTimeValue += increment.toLong()
@@ -490,6 +498,8 @@ open class TimeRulerView @JvmOverloads constructor(
             result = false
         }
 
+        onScrollListener?.onScrolled(distanceX.toInt(), distanceY.toInt())
+
         invalidate()
 
         return result
@@ -500,7 +510,7 @@ open class TimeRulerView @JvmOverloads constructor(
 
     override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float):
             Boolean {
-        status = STATUS_SCROLL_FLING
+        status = OnScrollListener.STATUS_SCROLL_FLING
 
         val startY = ((cursorTimeValue - timeModel.startTimeValue) * millisecondUnitPixel).toInt()
         val maxY =
@@ -529,8 +539,8 @@ open class TimeRulerView @JvmOverloads constructor(
             }
             invalidate()
         } else {
-            if (status == STATUS_SCROLL_FLING) {
-                status = STATUS_DOWN
+            if (status == OnScrollListener.STATUS_SCROLL_FLING) {
+                status = OnScrollListener.STATUS_DOWN
             }
         }
     }
@@ -541,20 +551,38 @@ open class TimeRulerView @JvmOverloads constructor(
 
     companion object {
         val TAG = TimeRulerView::class.java.simpleName
-
-        const val STATUS_NONE = 0
-        const val STATUS_DOWN = STATUS_NONE + 1
-        const val STATUS_SCROLL = STATUS_DOWN + 1
-        const val STATUS_SCROLL_FLING = STATUS_SCROLL + 1
     }
 
-    private var onCursorListener: OnCursorListener? = null
-    fun setOnCursorListener(onCursorListener: OnCursorListener) {
-        this.onCursorListener = onCursorListener
+    var onCursorListener: OnCursorListener? = null
+
+    abstract class OnCursorListener {
+        fun onProgressChanged(cursorTimeValue: Long) {}
     }
 
-    interface OnCursorListener {
-        fun onProgressChanged(cursorTimeValue: Long)
+    var onScrollListener: OnScrollListener? = null
+
+    abstract class OnScrollListener {
+        companion object {
+            const val STATUS_IDLE = 0
+            const val STATUS_DOWN = STATUS_IDLE + 1
+            const val STATUS_SCROLL = STATUS_DOWN + 1
+            const val STATUS_SCROLL_FLING = STATUS_SCROLL + 1
+            const val STATUS_ZOOM = STATUS_SCROLL_FLING + 1
+        }
+
+        /**
+         *
+         * @param newState     The updated scroll state. One of [STATUS_IDLE],
+         * [STATUS_DOWN] or [STATUS_SCROLL] or [STATUS_SCROLL_FLING] or STATUS_ZOOM
+         */
+        fun onScrollStateChanged(newState: Int) {}
+
+        /**
+         *
+         * @param dx The amount of horizontal scroll.
+         * @param dy The amount of vertical scroll.
+         */
+        fun onScrolled(dx: Int, dy: Int) {}
     }
 }
 
