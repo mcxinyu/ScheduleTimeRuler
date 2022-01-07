@@ -51,7 +51,8 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
         typeface?.let { textPaint.typeface = typeface }
     }
 
-    override fun onDraw(canvas: Canvas) {
+    override fun onDrawTick(canvas: Canvas) {
+        super.onDrawTick(canvas)
 
         val left = baselinePosition + cardMargin
         val right = left + cardWidth
@@ -79,8 +80,6 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
             }
             onDrawCard(canvas, schedule.model, left, top, right, bottom)
         }
-
-        super.onDraw(canvas)
     }
 
     protected open fun onDrawCard(
