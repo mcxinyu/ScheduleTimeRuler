@@ -14,8 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-#      - name: echo info
-#        run: echo 'https://jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/${{github.ref_name}}/ScheduleTimeRuler-${{github.ref_name}}.pom'
+      - uses: actions/checkout@v2
+      - name: echo info
+        run: echo 'https://jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/${{github.ref_name}}/ScheduleTimeRuler-${{github.ref_name}}.pom'
 #      - name: Call JitPack
 #        uses: fjogeleit/http-request-action@v1.5.0
 #        id: JitPack
