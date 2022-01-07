@@ -14,13 +14,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: echo info
-        run: echo 'https://jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/${{github.ref_name}}/ScheduleTimeRuler-${{github.ref_name}}.pom'
-      - name: Call JitPack
-        uses: fjogeleit/http-request-action@v1.5.0
+#      - name: echo info
+#        run: echo 'https://jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/${{github.ref_name}}/ScheduleTimeRuler-${{github.ref_name}}.pom'
+#      - name: Call JitPack
+#        uses: fjogeleit/http-request-action@v1.5.0
+#        id: JitPack
+#        with:
+#          url: 'https://jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/${{github.ref_name}}/ScheduleTimeRuler-${{github.ref_name}}.pom'
+#          method: 'GET'
+#          ignoreStatusCodes: 408
+#          preventFailureOnNoResponse: true
+      - uses: CamiloGarciaLaRotta/watermelon-http-client@v1
         id: JitPack
         with:
           url: 'https://jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/${{github.ref_name}}/ScheduleTimeRuler-${{github.ref_name}}.pom'
-          method: 'GET'
-          ignoreStatusCodes: 408
-          preventFailureOnNoResponse: true
+          fail_fast: true
+      - name: Show Response
+        run: echo ${{ steps.JitPack.outputs.response }}
