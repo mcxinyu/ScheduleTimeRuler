@@ -8,6 +8,7 @@ import android.text.StaticLayout
 import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.MotionEvent
+import androidx.annotation.ColorInt
 import androidx.core.content.res.ResourcesCompat
 import com.mcxinyu.scheduletimeruler.model.CardModel
 import com.mcxinyu.scheduletimeruler.model.CardPositionInfo
@@ -20,6 +21,8 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : ScaleTimeRulerView(context, attrs) {
 
+    @ColorInt
+    private var cardLineColor: Int
     private var cardMargin: Float
     private var cardWidth: Float
 
@@ -44,6 +47,11 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
             R.styleable.ScheduleTimeRulerView_strv_cardMargin,
             16.toPx(context)
         )
+        cardLineColor =
+            typedArray.getColor(
+                R.styleable.ScheduleTimeRulerView_strv_cardLineColor,
+                baselineOutDayColor
+            )
 
         typedArray.recycle()
 
@@ -56,6 +64,9 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
 
         val left = baselinePosition + cardMargin
         val right = left + cardWidth
+
+        textPaint.color = cardLineColor
+        canvas.drawRect(left, 0f, right, height.toFloat(), textPaint)
 
         for (schedule in datas) {
             schedule.reset()

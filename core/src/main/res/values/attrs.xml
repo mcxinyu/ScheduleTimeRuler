@@ -3,6 +3,7 @@
     <declare-styleable name="ScheduleTimeRulerView">
         <attr name="strv_cardWidth" format="dimension|reference" />
         <attr name="strv_cardMargin" format="dimension|reference" />
+        <attr name="strv_cardLineColor" format="dimension|reference" />
     </declare-styleable>
 
 <!--    <declare-styleable name="ScaleTimeRulerView">-->
