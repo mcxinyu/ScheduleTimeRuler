@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: echo info
-        run: 'https://javadoc.jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/${{github.ref}}/ScheduleTimeRuler-${{github.ref}}.pom'
+        run: echo 'https://javadoc.jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/${{github.ref_name}}/ScheduleTimeRuler-${{github.ref_name}}.pom'
 #      - name: Call JitPack
 #        uses: fjogeleit/http-request-action@v1.5.0
 #        with:
