@@ -1,5 +1,6 @@
 ## ScheduleTimeRulerView
 [![](https://jitpack.io/v/mcxinyu/ScheduleTimeRuler.svg)](https://jitpack.io/#mcxinyu/ScheduleTimeRuler)
+[![Release CI](https://github.com/mcxinyu/ScheduleTimeRuler/actions/workflows/android.yml/badge.svg)](https://github.com/mcxinyu/ScheduleTimeRuler/actions/workflows/android.yml)
 
 ### DEMO
 
