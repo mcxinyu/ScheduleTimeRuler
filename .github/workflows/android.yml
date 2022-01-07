@@ -14,11 +14,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - name: setup jdk
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-      - name: Build with Gradle
-        id: build
-        run: chmod +x gradlew &&./gradlew clean app:assembleDebug
+      - name: echo info
+        run: 'https://javadoc.jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/${{github.ref_type}}/ScheduleTimeRuler-${{github.ref_type}}.pom'
+#      - name: Call JitPack
+#        uses: fjogeleit/http-request-action@v1.5.0
+#        with:
+#          url: 'https://javadoc.jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/${{github.ref_type}}/ScheduleTimeRuler-${{github.ref_type}}.pom'
+#          method: 'GET'
+#          timeout: 20000
