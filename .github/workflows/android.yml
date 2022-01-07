@@ -24,6 +24,7 @@ jobs:
           url: 'https://jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/2020.1.7.1104/ScheduleTimeRuler-2020.1.7.1104.pom'
           method: 'GET'
           ignoreStatusCodes: 408
+          preventFailureOnNoResponse: true
 #      - uses: CamiloGarciaLaRotta/watermelon-http-client@v1
 #        id: JitPack
 #        with:
