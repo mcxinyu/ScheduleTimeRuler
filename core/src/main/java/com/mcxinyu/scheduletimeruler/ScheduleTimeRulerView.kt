@@ -150,11 +150,12 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
             0f,
             true
         )
+        val titleHeight = if (schedule.title.isNotEmpty()) titleLayout.height else 0
         if (schedule.text.isNotEmpty() &&
-            bottom - max(0f, top) >= titleLayout.height + textLayout.height
+            bottom - max(0f, top) >= titleHeight + textLayout.height
         ) {
             canvas.save()
-            canvas.translate(left + dp16 / 4, max(0f, top) + titleLayout.height + vertical)
+            canvas.translate(left + dp16 / 4, max(0f, top) + titleHeight + vertical)
             textLayout.draw(canvas)
             canvas.restore()
         }

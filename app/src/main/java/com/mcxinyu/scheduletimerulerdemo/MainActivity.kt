@@ -1,7 +1,9 @@
 package com.mcxinyu.scheduletimerulerdemo
 
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.util.Log
+import android.view.animation.LinearInterpolator
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.mcxinyu.scheduletimeruler.ScaleTimeRulerView
@@ -42,13 +44,13 @@ class MainActivity : AppCompatActivity() {
                     1641362428000,
                 ),
                 CardModel(
-                    "伞伞伞",
+                    "",
                     "2022-01-05T14:14:28~16:08:48",
                     1641363268000,
                     1641370128000,
                 ),
                 CardModel(
-                    "丝丝丝",
+                    "",
                     "2022-01-05T16:48:48~17:00:43",
                     1641372528000,
                     1641373243000,
@@ -100,6 +102,45 @@ class MainActivity : AppCompatActivity() {
 //            override fun onScrolled(dx: Int, dy: Int) {
 //            }
 //        }
+        inflate.imageViewIn.setOnClickListener {
+            val valueAnimator: ValueAnimator = ValueAnimator.ofFloat(
+                1f,
+                when (inflate.timeRuler.scaleLevel) {
+                    ScaleTimeRulerView.Level.LEVEL_UNIT_2_HOUR -> 40f
+                    ScaleTimeRulerView.Level.LEVEL_UNIT_1_HOUR -> 50f
+                    ScaleTimeRulerView.Level.LEVEL_UNIT_30_MIN -> 50f
+                    ScaleTimeRulerView.Level.LEVEL_UNIT_15_MIN -> 70f
+                    ScaleTimeRulerView.Level.LEVEL_UNIT_5_MIN -> 70f
+                    else -> 70f
+                }
+            )
+            valueAnimator.interpolator = LinearInterpolator()
+            valueAnimator.duration = 600
+            valueAnimator.addUpdateListener {
+                inflate.timeRuler.setScale(it.animatedValue as Float)
+            }
+            valueAnimator.start()
+        }
+        inflate.imageViewOut.setOnClickListener {
+            val scaleLevel = inflate.timeRuler.scaleLevel
+            val valueAnimator: ValueAnimator = ValueAnimator.ofFloat(
+                when (scaleLevel) {
+                    ScaleTimeRulerView.Level.LEVEL_UNIT_2_HOUR -> 100f
+                    ScaleTimeRulerView.Level.LEVEL_UNIT_1_HOUR -> 100f
+                    ScaleTimeRulerView.Level.LEVEL_UNIT_30_MIN -> 100f
+                    ScaleTimeRulerView.Level.LEVEL_UNIT_15_MIN -> 100f
+                    ScaleTimeRulerView.Level.LEVEL_UNIT_5_MIN -> 100f
+                    else -> 100f
+                },
+                1f
+            )
+            valueAnimator.interpolator = LinearInterpolator()
+            valueAnimator.duration = 600
+            valueAnimator.addUpdateListener {
+                inflate.timeRuler.setScale(it.animatedValue as Float)
+            }
+            valueAnimator.start()
+        }
     }
 
     private fun testBase() {

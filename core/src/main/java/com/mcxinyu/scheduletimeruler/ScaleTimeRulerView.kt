@@ -152,6 +152,8 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
             scaleFactor = 1 + min(1000f, scale) / 1000f
         }
         scale(scaleFactor)
+        status = OnScrollListener.STATUS_IDLE
+
         lastScale = scale
     }
 

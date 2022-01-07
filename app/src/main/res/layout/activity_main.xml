@@ -2,13 +2,15 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#f0f0f0">
 
     <com.mcxinyu.scheduletimeruler.ScheduleTimeRulerView
         android:id="@+id/timeRuler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/search_bar"
         app:layout_constraintTop_toTopOf="parent"
         app:trv_font="@font/rubik_regular" />
 
@@ -16,10 +18,35 @@
         android:id="@+id/search_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
         android:max="100"
+        android:paddingVertical="16dp"
         android:progress="100"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/imageViewIn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="16dp"
+        android:paddingVertical="24dp"
+        android:src="@drawable/ic_baseline_zoom_in_24"
+        app:layout_constraintBottom_toTopOf="@+id/imageViewOut"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/imageViewOut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:paddingVertical="24dp"
+        android:src="@drawable/ic_baseline_zoom_out_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewIn" />
 
     <!--    <View-->
     <!--        android:layout_width="0dp"-->
