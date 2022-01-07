@@ -93,7 +93,7 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
         drawable?.let {
             if (it is ColorDrawable) {
                 textPaint.color = it.color
-                canvas.drawRoundRect(left, top, right, bottom, dp16 / 4, dp16 / 4, textPaint)
+                canvas.drawRect(left, top, right, bottom, textPaint)
             }
 //            else {
 //                val toBitmap = it.toBitmap()

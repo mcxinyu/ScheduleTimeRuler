@@ -211,7 +211,7 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
         LEVEL_UNIT_2_HOUR,
     }
 
-    val onScaleListener: OnScaleListener? = null
+    var onScaleListener: OnScaleListener? = null
 
     interface OnScaleListener {
         fun onScale(level: Level)
