@@ -15,10 +15,14 @@ jobs:
 
     steps:
       - name: echo info
-        run: echo 'https://javadoc.jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/${{github.ref_name}}/ScheduleTimeRuler-${{github.ref_name}}.pom'
-#      - name: Call JitPack
-#        uses: fjogeleit/http-request-action@v1.5.0
-#        with:
-#          url: 'https://javadoc.jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/${{github.ref_type}}/ScheduleTimeRuler-${{github.ref_type}}.pom'
-#          method: 'GET'
-#          timeout: 20000
+        run: echo 'https://jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/${{github.ref_name}}/ScheduleTimeRuler-${{github.ref_name}}.pom'
+      - name: Call JitPack
+        uses: fjogeleit/http-request-action@v1.5.0
+        id: JitPack
+        with:
+#          url: 'https://jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/${{github.ref_name}}/ScheduleTimeRuler-${{github.ref_name}}.pom'
+          url: 'https://jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/2020.1.7.1104/ScheduleTimeRuler-2020.1.7.1104.pom'
+          method: 'GET'
+          preventFailureOnNoResponse: true
+      - name: Show Response
+        run: echo ${{ steps.JitPack.outputs.response }}
