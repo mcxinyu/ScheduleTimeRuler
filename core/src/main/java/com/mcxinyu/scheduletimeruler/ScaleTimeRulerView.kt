@@ -99,6 +99,9 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
         return if (status != OnScrollListener.STATUS_ZOOM) {
             super.onTouchEvent(event)
         } else {
+            if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
+                status = OnScrollListener.STATUS_IDLE
+            }
             true
         }
     }
@@ -140,8 +143,6 @@ open class ScaleTimeRulerView @JvmOverloads constructor(
         tickSpacePixel = timeModel.unitTimeValue * millisecondUnitPixel
 
         invalidate()
-
-        status = OnScrollListener.STATUS_IDLE
     }
 
     private var lastScale = 0f
