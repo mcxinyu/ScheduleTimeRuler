@@ -1,6 +1,5 @@
 ## ScheduleTimeRulerView
 [![](https://jitpack.io/v/mcxinyu/ScheduleTimeRuler.svg)](https://jitpack.io/#mcxinyu/ScheduleTimeRuler)
-[![](https://jitci.com/gh/mcxinyu/ScheduleTimeRuler/svg)](https://jitci.com/gh/mcxinyu/ScheduleTimeRuler)
 
 ### DEMO
 
