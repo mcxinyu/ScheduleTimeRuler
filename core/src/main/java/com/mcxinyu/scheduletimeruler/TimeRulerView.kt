@@ -207,12 +207,9 @@ open class TimeRulerView @JvmOverloads constructor(
             time = Date(end)
         }
 
-        if (sCalendar[Calendar.YEAR] != eCalendar[Calendar.YEAR] ||
-            sCalendar[Calendar.MONTH] != eCalendar[Calendar.MONTH] ||
-            sCalendar[Calendar.DAY_OF_MONTH] != eCalendar[Calendar.DAY_OF_MONTH]
-        ) {
-            throw IllegalArgumentException("the start time and end time must be the same day")
-        }
+//        if (eCalendar.timeInMillis - sCalendar.timeInMillis > 1000 * 60 * 60 * 24) {
+//            throw IllegalArgumentException("The difference between the start time and the end time cannot be more than 24 hours")
+//        }
 
         timeModel.startTimeValue = start
         timeModel.endTimeValue = end
