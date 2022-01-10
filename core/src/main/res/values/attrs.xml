@@ -1,21 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="ScheduleTimeRulerView">
+        <!-- 事件卡片宽度 -->
         <attr name="strv_cardWidth" format="dimension|reference" />
+        <!-- 卡片左右边距 -->
         <attr name="strv_cardMargin" format="dimension|reference" />
-        <attr name="strv_cardLineColor" format="dimension|reference" />
+        <!-- 事件卡片背景轴的颜色 -->
+        <attr name="strv_cardLineColor" format="color|reference" />
+        <!-- 卡片是否模拟胶卷 -->
+        <attr name="strv_cardSimulateFilmStyle" format="boolean" />
+        <!-- 胶卷边孔宽度 -->
+        <attr name="strv_cardFilmHoleWidth" format="dimension|reference" />
+        <!-- 胶卷边孔高度 -->
+        <attr name="strv_cardFilmHoleHeight" format="dimension|reference" />
+        <!-- 胶卷边孔建间的空隙 -->
+        <attr name="strv_cardFilmHoleGap" format="dimension|reference" />
+        <!-- 胶卷边孔起始偏移量 -->
+        <attr name="strv_cardFilmHoleOffset" format="dimension|reference" />
     </declare-styleable>
 
-<!--    <declare-styleable name="ScaleTimeRulerView">-->
-<!--        <attr name="strv_scaleLevel" format="enum">-->
-<!--            <enum name="level_unit_1_min" value="1" />-->
-<!--            <enum name="level_unit_5_min" value="5" />-->
-<!--            <enum name="level_unit_15_min" value="15" />-->
-<!--            <enum name="level_unit_30_min" value="30" />-->
-<!--            <enum name="level_unit_1_hour" value="60" />-->
-<!--            <enum name="level_unit_2_hour" value="120" />-->
-<!--        </attr>-->
-<!--    </declare-styleable>-->
+    <!--    <declare-styleable name="ScaleTimeRulerView">-->
+    <!--        <attr name="strv_scaleLevel" format="enum">-->
+    <!--            <enum name="level_unit_1_min" value="1" />-->
+    <!--            <enum name="level_unit_5_min" value="5" />-->
+    <!--            <enum name="level_unit_15_min" value="15" />-->
+    <!--            <enum name="level_unit_30_min" value="30" />-->
+    <!--            <enum name="level_unit_1_hour" value="60" />-->
+    <!--            <enum name="level_unit_2_hour" value="120" />-->
+    <!--        </attr>-->
+    <!--    </declare-styleable>-->
 
     <declare-styleable name="TimeRulerView">
         <attr name="trv_font" format="reference" />

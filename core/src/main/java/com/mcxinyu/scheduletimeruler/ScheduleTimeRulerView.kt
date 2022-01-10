@@ -12,7 +12,9 @@ import androidx.annotation.ColorInt
 import androidx.core.content.res.ResourcesCompat
 import com.mcxinyu.scheduletimeruler.model.CardModel
 import com.mcxinyu.scheduletimeruler.model.CardPositionInfo
+import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.min
 
 /**
  * @author [yuefeng](mailto:mcxinyu@foxmail.com) in 2021/12/24.
@@ -20,6 +22,12 @@ import kotlin.math.max
 open class ScheduleTimeRulerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : ScaleTimeRulerView(context, attrs) {
+
+    private var cardFilmHoleOffset: Float
+    private var cardFilmHoleGap: Float
+    private var cardFilmHoleHeight: Float
+    private var cardFilmHoleWidth: Float
+    private var cardSimulateFilmStyle: Boolean
 
     @ColorInt
     private var cardLineColor: Int
@@ -33,6 +41,7 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
     }
 
     private val dp16 = 16.toPx(context)
+    private val dp9 = 9.toPx(context)
 
     private val textPaint = TextPaint()
 
@@ -47,11 +56,30 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
             R.styleable.ScheduleTimeRulerView_strv_cardMargin,
             16.toPx(context)
         )
-        cardLineColor =
-            typedArray.getColor(
-                R.styleable.ScheduleTimeRulerView_strv_cardLineColor,
-                baselineOutDayColor
-            )
+        cardLineColor = typedArray.getColor(
+            R.styleable.ScheduleTimeRulerView_strv_cardLineColor,
+            baselineOutDayColor
+        )
+        cardSimulateFilmStyle = typedArray.getBoolean(
+            R.styleable.ScheduleTimeRulerView_strv_cardSimulateFilmStyle,
+            true
+        )
+        cardFilmHoleWidth = typedArray.getDimension(
+            R.styleable.ScheduleTimeRulerView_strv_cardFilmHoleWidth,
+            16.toPx(context)
+        )
+        cardFilmHoleHeight = typedArray.getDimension(
+            R.styleable.ScheduleTimeRulerView_strv_cardFilmHoleHeight,
+            cardFilmHoleWidth / 16 * 9
+        )
+        cardFilmHoleGap = typedArray.getDimension(
+            R.styleable.ScheduleTimeRulerView_strv_cardFilmHoleGap,
+            cardFilmHoleHeight
+        )
+        cardFilmHoleOffset = typedArray.getDimension(
+            R.styleable.ScheduleTimeRulerView_strv_cardFilmHoleOffset,
+            -cardFilmHoleHeight / 2
+        )
 
         typedArray.recycle()
 
@@ -103,7 +131,43 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
         drawable?.let {
             if (it is ColorDrawable) {
                 textPaint.color = it.color
-                canvas.drawRect(left, top, right, bottom, textPaint)
+
+                val path = Path()
+                path.fillType = Path.FillType.EVEN_ODD
+                path.addRect(left, top, right, bottom, Path.Direction.CW)
+
+                if (cardSimulateFilmStyle && bottom - top > cardFilmHoleHeight) {
+                    val count =
+                        (bottom - top) /
+                                (cardFilmHoleHeight + cardFilmHoleGap -
+                                        abs(cardFilmHoleOffset))
+                    for (i in 0..count.toInt()) {
+                        val aLeft = left + cardFilmHoleGap
+                        val aTop =
+                            top + i * cardFilmHoleHeight + cardFilmHoleOffset + i * cardFilmHoleGap
+                        val aBottom = aTop + cardFilmHoleHeight
+
+                        path.addRect(
+                            aLeft,
+                            min(max(aTop, top), bottom),
+                            aLeft + cardFilmHoleWidth,
+                            min(aBottom, bottom),
+                            Path.Direction.CCW
+                        )
+
+                        val aRight = right - cardFilmHoleGap
+
+                        path.addRect(
+                            aRight - cardFilmHoleWidth,
+                            min(max(aTop, top), bottom),
+                            aRight,
+                            min(aBottom, bottom),
+                            Path.Direction.CCW
+                        )
+                    }
+                }
+
+                canvas.drawPath(path, textPaint)
             }
 //            else {
 //                val toBitmap = it.toBitmap()
@@ -128,7 +192,10 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
         val titleLayout = StaticLayout(
             schedule.title,
             textPaint,
-            (right - left - dp16 / 2).toInt(),
+            (right - left - dp16 / 2 -
+                    if (cardSimulateFilmStyle) cardFilmHoleGap * 4 + cardFilmHoleWidth * 2
+                    else 0f
+                    ).toInt(),
             Layout.Alignment.ALIGN_NORMAL,
             1f,
             0f,
@@ -137,7 +204,9 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
         if (schedule.title.isNotEmpty() && bottom - top >= titleLayout.height) {
             canvas.save()
             canvas.translate(
-                left + dp16 / 4,
+                left + dp16 / 4 +
+                        if (cardSimulateFilmStyle) cardFilmHoleGap * 2 + cardFilmHoleWidth
+                        else 0f,
                 if (bottom - max(0f, top) >= titleLayout.height + vertical * 2)
                     max(0f, top) + vertical
                 else
@@ -154,7 +223,10 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
         val textLayout = StaticLayout(
             schedule.text,
             textPaint,
-            (right - left - dp16 / 2).toInt(),
+            (right - left - dp16 / 2 -
+                    if (cardSimulateFilmStyle) cardFilmHoleGap * 4 + cardFilmHoleWidth * 2
+                    else 0f
+                    ).toInt(),
             Layout.Alignment.ALIGN_NORMAL,
             1f,
             0f,
@@ -165,7 +237,12 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
             bottom - max(0f, top) >= titleHeight + textLayout.height
         ) {
             canvas.save()
-            canvas.translate(left + dp16 / 4, max(0f, top) + titleHeight + vertical)
+            canvas.translate(
+                left + dp16 / 4 +
+                        if (cardSimulateFilmStyle) cardFilmHoleGap * 2 + cardFilmHoleWidth
+                        else 0f,
+                max(0f, top) + titleHeight + vertical
+            )
             textLayout.draw(canvas)
             canvas.restore()
         }

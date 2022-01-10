@@ -1,6 +1,7 @@
 package com.mcxinyu.scheduletimerulerdemo
 
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.animation.LinearInterpolator
@@ -11,6 +12,7 @@ import com.mcxinyu.scheduletimeruler.ScheduleTimeRulerView.OnCardClickListener
 import com.mcxinyu.scheduletimeruler.TimeRulerView
 import com.mcxinyu.scheduletimeruler.model.CardModel
 import com.mcxinyu.scheduletimerulerdemo.databinding.ActivityMainBinding
+import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -28,33 +30,70 @@ class MainActivity : AppCompatActivity() {
         testSchedule()
     }
 
+    @SuppressLint("SimpleDateFormat")
+    val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+
     private fun testSchedule() {
+        val instance = Calendar.getInstance()
+
         inflate.timeRuler.setDatas(
             listOf(
-                CardModel(
-                    "噫噫噫",
-                    "2022-01-05T09:20:41~11:00:54",
-                    1641345641000,
-                    1641351654000,
-                ),
-                CardModel(
-                    "尔尔尔",
-                    "2022-01-05T11:30:54~14:00:28",
-                    1641353454000,
-                    1641362428000,
-                ),
-                CardModel(
-                    "",
-                    "2022-01-05T14:14:28~16:08:48",
-                    1641363268000,
-                    1641370128000,
-                ),
-                CardModel(
-                    "",
-                    "2022-01-05T16:48:48~17:00:43",
-                    1641372528000,
-                    1641373243000,
-                ),
+                CardModel("噫噫噫", "", 0, 0).apply {
+                    instance[Calendar.HOUR_OF_DAY] = 9
+                    instance[Calendar.MINUTE] = 20
+                    instance[Calendar.SECOND] = 40
+                    startTime = instance.timeInMillis
+
+                    instance[Calendar.HOUR_OF_DAY] = 11
+                    instance[Calendar.MINUTE] = 0
+                    instance[Calendar.SECOND] = 50
+                    endTime = instance.timeInMillis
+
+                    text =
+                        "${simpleDateFormat.format(startTime)}~${simpleDateFormat.format(endTime)}"
+                },
+                CardModel("尔尔尔", "", 0, 0).apply {
+                    instance[Calendar.HOUR_OF_DAY] = 11
+                    instance[Calendar.MINUTE] = 30
+                    instance[Calendar.SECOND] = 50
+                    startTime = instance.timeInMillis
+
+                    instance[Calendar.HOUR_OF_DAY] = 14
+                    instance[Calendar.MINUTE] = 0
+                    instance[Calendar.SECOND] = 20
+                    endTime = instance.timeInMillis
+
+                    text =
+                        "${simpleDateFormat.format(startTime)}~${simpleDateFormat.format(endTime)}"
+                },
+                CardModel("伞伞伞", "", 0, 0).apply {
+                    instance[Calendar.HOUR_OF_DAY] = 14
+                    instance[Calendar.MINUTE] = 14
+                    instance[Calendar.SECOND] = 20
+                    startTime = instance.timeInMillis
+
+                    instance[Calendar.HOUR_OF_DAY] = 16
+                    instance[Calendar.MINUTE] = 8
+                    instance[Calendar.SECOND] = 40
+                    endTime = instance.timeInMillis
+
+                    text =
+                        "${simpleDateFormat.format(startTime)}~${simpleDateFormat.format(endTime)}"
+                },
+                CardModel("", "", 0, 0).apply {
+                    instance[Calendar.HOUR_OF_DAY] = 16
+                    instance[Calendar.MINUTE] = 48
+                    instance[Calendar.SECOND] = 40
+                    startTime = instance.timeInMillis
+
+                    instance[Calendar.HOUR_OF_DAY] = 17
+                    instance[Calendar.MINUTE] = 0
+                    instance[Calendar.SECOND] = 40
+                    endTime = instance.timeInMillis
+
+//                    text =
+//                        "${simpleDateFormat.format(startTime)}~${simpleDateFormat.format(endTime)}"
+                },
             )
         )
         inflate.timeRuler.onCardClickListener = object : OnCardClickListener {
