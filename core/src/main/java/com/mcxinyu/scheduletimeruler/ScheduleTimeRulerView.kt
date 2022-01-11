@@ -34,14 +34,15 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
     private var cardMargin: Float
     private var cardWidth: Float
 
-    private var datas = mutableListOf<CardPositionInfo>()
-    fun setDatas(list: List<CardModel>) {
-        datas = list.map { CardPositionInfo(it) }.toMutableList()
+    var data = mutableListOf<CardPositionInfo>()
+        internal set
+
+    open fun setData(list: List<CardModel>) {
+        data = list.map { CardPositionInfo(it) }.toMutableList()
         invalidate()
     }
 
     private val dp16 = 16.toPx(context)
-    private val dp9 = 9.toPx(context)
 
     private val textPaint = TextPaint()
 
@@ -96,7 +97,7 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
         textPaint.color = cardLineColor
         canvas.drawRect(left, 0f, right, height.toFloat(), textPaint)
 
-        for (schedule in datas) {
+        for (schedule in data) {
             schedule.reset()
 
             val top =
@@ -251,7 +252,7 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
 
     override fun onSingleTapUp(e: MotionEvent): Boolean {
         onCardClickListener?.let { listener ->
-            datas.firstOrNull {
+            data.firstOrNull {
                 it.left < e.x && it.right > e.x && it.top < e.y && it.bottom > e.y
             }?.let {
                 listener.onClick(it.model)

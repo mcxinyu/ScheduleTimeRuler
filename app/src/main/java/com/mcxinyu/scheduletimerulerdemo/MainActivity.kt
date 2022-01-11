@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
     private fun testSchedule() {
         val instance = Calendar.getInstance()
 
-        inflate.timeRuler.setDatas(
+        inflate.timeRuler.setData(
             listOf(
                 CardModel("噫噫噫", "", 0, 0).apply {
                     instance[Calendar.HOUR_OF_DAY] = 9
