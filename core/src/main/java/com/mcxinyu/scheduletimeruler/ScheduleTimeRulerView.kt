@@ -10,6 +10,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import androidx.annotation.ColorInt
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmap
 import com.mcxinyu.scheduletimeruler.model.CardModel
 import com.mcxinyu.scheduletimeruler.model.CardPositionInfo
 import kotlin.math.abs
@@ -23,16 +24,16 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : ScaleTimeRulerView(context, attrs) {
 
-    private var cardFilmHoleOffset: Float
-    private var cardFilmHoleGap: Float
-    private var cardFilmHoleHeight: Float
-    private var cardFilmHoleWidth: Float
-    private var cardSimulateFilmStyle: Boolean
+    var cardFilmHoleOffset: Float
+    var cardFilmHoleGap: Float
+    var cardFilmHoleHeight: Float
+    var cardFilmHoleWidth: Float
+    var cardSimulateFilmStyle: Boolean
 
     @ColorInt
-    private var cardLineColor: Int
-    private var cardMargin: Float
-    private var cardWidth: Float
+    var cardLineColor: Int
+    var cardMargin: Float
+    var cardWidth: Float
 
     var data = mutableListOf<CardPositionInfo>()
         internal set
@@ -169,19 +170,25 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
                 }
 
                 canvas.drawPath(path, textPaint)
+            } else {
+                val toBitmap = it.toBitmap()
+                val bitmap = Bitmap.createScaledBitmap(
+                    toBitmap,
+                    (right - left).toInt(),
+                    ((right - left) * toBitmap.height / toBitmap.width).toInt(),
+                    true
+                )
+
+                val path = Path()
+//                path.fillType = Path.FillType.EVEN_ODD
+
+                val shader = BitmapShader(bitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
+                textPaint.shader = shader
+
+                canvas.drawRect(left, top, right, bottom, textPaint)
+
+                textPaint.shader = null
             }
-//            else {
-//                val toBitmap = it.toBitmap()
-//                val createScaledBitmap =
-//                    Bitmap.createScaledBitmap(
-//                        toBitmap,
-//                        (right - left).toInt(),
-//                        ((right - left) * toBitmap.height / toBitmap.width).toInt(),
-//                        true
-//                    )
-//
-//                canvas.drawBitmap(createScaledBitmap, left, top, textPaint)
-//            }
         }
         //endregion
 

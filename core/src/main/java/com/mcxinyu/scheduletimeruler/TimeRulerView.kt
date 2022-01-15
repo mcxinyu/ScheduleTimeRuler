@@ -29,35 +29,35 @@ open class TimeRulerView @JvmOverloads constructor(
     protected var typeface: Typeface? = null
 
     @ColorInt
-    protected var tickTextColor: Int
-    protected var tickTextSize: Float
-    protected var showTickText: Boolean
+    var tickTextColor: Int
+    var tickTextSize: Float
+    var showTickText: Boolean
 
-    protected var showTick: Boolean
-    protected var maxTickSpace: Float
-
-    @ColorInt
-    protected var keyTickColor: Int
-    protected var keyTickWidth: Float
-    protected var keyTickHeight: Float
+    var showTick: Boolean
+    var maxTickSpace: Float
 
     @ColorInt
-    protected var cursorLineColor: Int
-    protected var cursorLineWidth: Float
-    protected var cursorLinePositionPercentage: Float
-    protected var cursorLinePosition by Delegates.notNull<Float>()
-    protected var showCursorText: Boolean
-    protected var showCursorLine: Boolean
+    var keyTickColor: Int
+    var keyTickWidth: Float
+    var keyTickHeight: Float
 
     @ColorInt
-    protected var baselineOutDayColor: Int
+    var cursorLineColor: Int
+    var cursorLineWidth: Float
+    var cursorLinePositionPercentage: Float
+    var cursorLinePosition by Delegates.notNull<Float>()
+    var showCursorText: Boolean
+    var showCursorLine: Boolean
 
     @ColorInt
-    protected var baselineColor: Int
-    protected var baselineWidth: Float
-    protected var baselinePositionPercentage: Float
-    protected var baselinePosition by Delegates.notNull<Float>()
-    protected var showBaseline: Boolean
+    var baselineOutDayColor: Int
+
+    @ColorInt
+    var baselineColor: Int
+    var baselineWidth: Float
+    var baselinePositionPercentage: Float
+    var baselinePosition by Delegates.notNull<Float>()
+    var showBaseline: Boolean
 
     private val paint = Paint()
 

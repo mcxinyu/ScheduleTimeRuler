@@ -38,7 +38,13 @@ class MainActivity : AppCompatActivity() {
 
         inflate.timeRuler.setData(
             listOf(
-                CardModel("噫噫噫", "", 0, 0).apply {
+                CardModel(
+                    "噫噫噫",
+                    "",
+                    0,
+                    0,
+                    background = R.drawable.ic_launcher_background
+                ).apply {
                     instance[Calendar.HOUR_OF_DAY] = 9
                     instance[Calendar.MINUTE] = 20
                     instance[Calendar.SECOND] = 40
