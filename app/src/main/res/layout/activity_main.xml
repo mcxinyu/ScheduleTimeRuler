@@ -12,7 +12,9 @@
         android:background="@color/white"
         app:layout_constraintBottom_toTopOf="@+id/search_bar"
         app:layout_constraintTop_toTopOf="parent"
-        app:trv_font="@font/rubik_regular" />
+        app:trv_baselineWidth="8dp"
+        app:trv_font="@font/rubik_regular"
+        app:trv_orientation="horizontal" />
 
     <SeekBar
         android:id="@+id/search_bar"

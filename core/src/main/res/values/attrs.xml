@@ -31,6 +31,14 @@
     <!--    </declare-styleable>-->
 
     <declare-styleable name="TimeRulerView">
+        <!-- 坐标系方向、垂直（默认）或横向 -->
+        <attr name="trv_orientation" format="enum">
+            <!-- Defines an horizontal widget. -->
+            <enum name="horizontal" value="0" />
+            <!-- Defines a vertical widget. and it is default-->
+            <enum name="vertical" value="1" />
+        </attr>
+
         <attr name="trv_font" format="reference" />
 
         <!--region 刻度尺基线-->
@@ -58,6 +66,13 @@
         <attr name="trv_keyTickHeight" format="dimension|reference" />
         <attr name="trv_keyTickWidth" format="dimension|reference" />
         <attr name="trv_keyTickColor" format="color|reference" />
+        <!--        &lt;!&ndash; 刻度朝向 &ndash;&gt;-->
+        <!--        <attr name="trv_tickDirection" format="enum">-->
+        <!--            <enum name="down" value="0" />-->
+        <!--            <enum name="up" value="1" />-->
+        <!--            <enum name="left" value="0" />-->
+        <!--            <enum name="right" value="1" />-->
+        <!--        </attr>-->
         <!--endregion-->
 
         <attr name="trv_showTick" format="boolean" />

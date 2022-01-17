@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
                     text =
                         "${simpleDateFormat.format(startTime)}~${simpleDateFormat.format(endTime)}"
                 },
-                CardModel("", "", 0, 0).apply {
+                CardModel("丝丝丝", "", 0, 0).apply {
                     instance[Calendar.HOUR_OF_DAY] = 16
                     instance[Calendar.MINUTE] = 48
                     instance[Calendar.SECOND] = 40
