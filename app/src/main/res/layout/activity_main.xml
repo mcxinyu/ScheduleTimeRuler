@@ -13,8 +13,7 @@
         app:layout_constraintBottom_toTopOf="@+id/search_bar"
         app:layout_constraintTop_toTopOf="parent"
         app:strv_cardSimulateFilmStyle="true"
-        app:trv_baselineWidth="5dp"
-        app:trv_orientation="horizontal" />
+        app:trv_baselineWidth="5dp" />
 
     <SeekBar
         android:id="@+id/search_bar"

@@ -2,8 +2,11 @@ package com.mcxinyu.scheduletimerulerdemo
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
@@ -11,6 +14,7 @@ import com.mcxinyu.scheduletimeruler.ScaleTimeRulerView
 import com.mcxinyu.scheduletimeruler.ScheduleTimeRulerView.OnCardClickListener
 import com.mcxinyu.scheduletimeruler.TimeRulerView
 import com.mcxinyu.scheduletimeruler.model.CardModel
+import com.mcxinyu.scheduletimeruler.toPx
 import com.mcxinyu.scheduletimerulerdemo.databinding.ActivityMainBinding
 import java.text.SimpleDateFormat
 import java.util.*
@@ -205,6 +209,42 @@ class MainActivity : AppCompatActivity() {
 //            }
 //        }
 //        inflate.textViewCursor.text = simpleDateFormat2.format(inflate.timeRuler.cursorTimeValue)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            inflate.timeRuler.apply {
+                orientation = 0
+                cardLineColor = Color.BLUE
+                baselinePositionPercentage = 0.55f
+                cursorLinePositionPercentage = 0.5f
+                cardShowText = false
+                cardMargin = 4.toPx(context)
+                cardWidth = 40.toPx(context)
+                cardFilmHoleWidth = 8.toPx(context)
+                cardFilmHoleHeight = 4.toPx(context)
+                cardFilmHoleGap = cardFilmHoleHeight
+                cardFilmHoleOffset = -cardFilmHoleHeight / 2
+                layoutParams.height = 140.toPx(context).toInt()
+            }
+        } else {
+            inflate.timeRuler.apply {
+                orientation = 1
+                cardLineColor = baselineOutDayColor
+                baselinePositionPercentage = 0.25f
+                cursorLinePositionPercentage = 0.3f
+                cardShowText = true
+                cardMargin = 16.toPx(context)
+                cardWidth = 128.toPx(context)
+                cardFilmHoleWidth = 16.toPx(context)
+                cardFilmHoleHeight = 9.toPx(context)
+                cardFilmHoleGap = cardFilmHoleHeight
+                cardFilmHoleOffset = -cardFilmHoleHeight / 2
+                layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+            }
+        }
     }
 
     companion object {

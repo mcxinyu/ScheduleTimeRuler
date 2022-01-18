@@ -331,7 +331,8 @@ open class TimeRulerView @JvmOverloads constructor(
 
         val backFirstTimeValue = frontLastTimeOffsetValue + timeModel.unitTimeValue
         val backFirstTimePosition = frontLastTimePosition + tickSpacePixel
-        val backCount = (height - cursorLinePosition) / tickSpacePixel
+        val backCount =
+            ((if (orientation == 0) width else height) - cursorLinePosition) / tickSpacePixel
 
         //从游标线往后画
         for (i in 0..ceil(backCount.toDouble()).toInt()) {
