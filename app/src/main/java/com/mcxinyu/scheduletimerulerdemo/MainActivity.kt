@@ -217,7 +217,6 @@ class MainActivity : AppCompatActivity() {
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             inflate.timeRuler.apply {
                 orientation = 0
-                cardLineColor = Color.BLUE
                 baselinePositionPercentage = 0.55f
                 cursorLinePositionPercentage = 0.5f
                 cardShowText = false
@@ -232,7 +231,6 @@ class MainActivity : AppCompatActivity() {
         } else {
             inflate.timeRuler.apply {
                 orientation = 1
-                cardLineColor = baselineOutDayColor
                 baselinePositionPercentage = 0.25f
                 cursorLinePositionPercentage = 0.3f
                 cardShowText = true

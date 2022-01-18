@@ -110,13 +110,15 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
         if (orientation == 0) {
             bottom = baselinePosition - cardMargin
             top = bottom - cardWidth
+            right = width.toFloat()
         } else {
             left = baselinePosition + cardMargin
             right = left + cardWidth
+            bottom = height.toFloat()
         }
 
         textPaint.color = cardLineColor
-        canvas.drawRect(left, 0f, right, height.toFloat(), textPaint)
+        canvas.drawRect(left, top, right, bottom, textPaint)
 
         for (schedule in data) {
             schedule.reset()
