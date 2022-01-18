@@ -12,8 +12,8 @@
         android:background="@color/white"
         app:layout_constraintBottom_toTopOf="@+id/search_bar"
         app:layout_constraintTop_toTopOf="parent"
-        app:trv_baselineWidth="8dp"
-        app:trv_font="@font/rubik_regular"
+        app:strv_cardSimulateFilmStyle="true"
+        app:trv_baselineWidth="5dp"
         app:trv_orientation="horizontal" />
 
     <SeekBar

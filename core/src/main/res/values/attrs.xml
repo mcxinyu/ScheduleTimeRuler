@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="ScheduleTimeRulerView">
+        <attr name="strv_cardShowTitle" format="boolean" />
+        <attr name="strv_cardShowText" format="boolean" />
         <!-- 事件卡片宽度 -->
         <attr name="strv_cardWidth" format="dimension|reference" />
         <!-- 卡片左右边距 -->

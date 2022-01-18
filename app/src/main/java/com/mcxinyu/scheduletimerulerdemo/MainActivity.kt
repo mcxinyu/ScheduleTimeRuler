@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
                     endTime = instance.timeInMillis
 
                     text =
-                        "${simpleDateFormat.format(startTime)}~${simpleDateFormat.format(endTime)}"
+                        "尔${simpleDateFormat.format(startTime)}~${simpleDateFormat.format(endTime)}"
                 },
                 CardModel("伞伞伞", "", 0, 0).apply {
                     instance[Calendar.HOUR_OF_DAY] = 14

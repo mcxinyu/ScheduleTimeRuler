@@ -6,7 +6,6 @@ import android.graphics.drawable.ColorDrawable
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
-import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.MotionEvent
 import androidx.annotation.ColorInt
@@ -25,6 +24,8 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : ScaleTimeRulerView(context, attrs) {
 
+    var cardShowText: Boolean
+    var cardShowTitle: Boolean
     var cardFilmHoleOffset: Float
     var cardFilmHoleGap: Float
     var cardFilmHoleHeight: Float
@@ -51,6 +52,14 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.ScheduleTimeRulerView)
 
+        cardShowTitle = typedArray.getBoolean(
+            R.styleable.ScheduleTimeRulerView_strv_cardShowTitle,
+            true
+        )
+        cardShowText = typedArray.getBoolean(
+            R.styleable.ScheduleTimeRulerView_strv_cardShowText,
+            true
+        )
         cardWidth = typedArray.getDimension(
             R.styleable.ScheduleTimeRulerView_strv_cardWidth,
             128.toPx(context)
@@ -248,77 +257,78 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
         }
         //endregion
 
-        val vertical = dp16 / 8
+        val margin = dp16 / 4
+        var titleHeight = 0
 
-        //region draw title
-        try {
-            textPaint.textSize = tickTextSize
+        textPaint.textSize = tickTextSize
+
+        textPaint.getTextBounds("一", 0, 1, rect)
+        var yiWidth = rect.width()
+        textPaint.getTextBounds(schedule.title, 0, schedule.title.length, rect)
+        var textWidth = rect.width()
+
+        if (cardShowTitle) {
             textPaint.color = schedule.titleColor
-
-            textPaint.getTextBounds("一", 0, 1, rect)
-            var yiWidth = rect.width()
-            textPaint.getTextBounds(schedule.title, 0, schedule.title.length, rect)
-            var textWidth = rect.width()
 
             val titleLayout = StaticLayout(
                 schedule.title,
                 textPaint,
                 max(
-                    0,
-                    if (orientation == 0)
-                        (right - left - dp16 / 2).toInt()
-                    else
-                        (right - left - dp16 / 2 -
-                                if (cardSimulateFilmStyle) cardFilmHoleGap * 4 + cardFilmHoleWidth * 2
-                                else 0f
-                                ).toInt()
-                ),
+                    0f,
+                    right - left - margin * 2 -
+                            if (orientation == 1 && cardSimulateFilmStyle) cardFilmHoleGap * 2 + cardFilmHoleWidth * 2
+                            else 0f
+                ).toInt(),
                 Layout.Alignment.ALIGN_NORMAL,
                 1f,
                 0f,
                 true
             )
-            canvas.save()
-
-            var titleHeight = 0
 
             //horizontal
             if (schedule.title.isNotEmpty() &&
                 orientation == 0 &&
-                right - left - dp16 / 2 > yiWidth &&
+                right - left - margin * 2 > yiWidth &&
                 (bottom - top -
-                        if (cardSimulateFilmStyle) cardFilmHoleGap * 4 + cardFilmHoleWidth * 2
+                        if (cardSimulateFilmStyle) cardFilmHoleGap * 2 + cardFilmHoleWidth * 2
                         else 0f) >= titleLayout.height
             ) {
+                titleHeight = titleLayout.height
+
+                val aWidth = min(textWidth, titleLayout.width) + margin * 2
+
+                canvas.save()
                 canvas.translate(
-                    if (min(textWidth, titleLayout.width) > right - dp16 / 2)
-                        right - dp16 / 2 - min(textWidth, titleLayout.width)
-                    else max(0f, left) + dp16 / 4,
+                    if (aWidth >= right) right - aWidth
+                    else max(0f, left) + margin,
                     top +
-                            if (cardSimulateFilmStyle) cardFilmHoleGap * 2 + cardFilmHoleWidth
+                            if (cardSimulateFilmStyle) cardFilmHoleGap + cardFilmHoleWidth
                             else 0f
                 )
                 titleLayout.draw(canvas)
-
-                titleHeight = titleLayout.height
+                canvas.restore()
             }
             //vertical
             if (schedule.title.isNotEmpty() && orientation == 1 && bottom - top >= titleLayout.height) {
+                titleHeight = titleLayout.height
+
+                canvas.save()
                 canvas.translate(
-                    left + dp16 / 4 +
-                            if (cardSimulateFilmStyle) cardFilmHoleGap * 2 + cardFilmHoleWidth
+                    left + margin +
+                            if (cardSimulateFilmStyle) cardFilmHoleGap + cardFilmHoleWidth
                             else 0f,
-                    if (bottom - max(0f, top) >= titleLayout.height + vertical * 2)
-                        max(0f, top) + vertical
+                    if (bottom - max(0f, top) >= titleLayout.height + margin * 2)
+                        max(0f, top) + margin
                     else
-                        bottom - titleLayout.height - vertical
+                        bottom - titleLayout.height - margin
                 )
                 titleLayout.draw(canvas)
+                canvas.restore()
             }
-            canvas.restore()
-            //endregion
+        }
 
-            //region draw text
+        //region draw text
+        if (cardShowText) {
             textPaint.textSize = tickTextSize * 0.9f
             textPaint.color = schedule.textColor
 
@@ -331,55 +341,52 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
                 schedule.text,
                 textPaint,
                 max(
-                    0,
-                    if (orientation == 0)
-                        (right - left - dp16 / 2).toInt()
-                    else
-                        (right - left - dp16 / 2 -
-                                if (cardSimulateFilmStyle) cardFilmHoleGap * 4 + cardFilmHoleWidth * 2
-                                else 0f
-                                ).toInt()
-                ),
+                    0f,
+                    min(right, right - left) - margin * 2 -
+                            if (orientation == 1 && cardSimulateFilmStyle) cardFilmHoleGap * 2 + cardFilmHoleWidth * 2
+                            else 0f
+                ).toInt(),
                 Layout.Alignment.ALIGN_NORMAL,
                 1f,
                 0f,
                 true
             )
+            //horizontal
             if (schedule.text.isNotEmpty() &&
                 orientation == 0 &&
-                right - left - dp16 / 2 > yiWidth &&
-                (bottom - top - titleHeight -
-                        if (cardSimulateFilmStyle) cardFilmHoleGap * 3 + cardFilmHoleWidth * 2
+                right - left - margin * 2 > yiWidth &&
+                (bottom - top - margin * 2 - titleHeight -
+                        if (cardSimulateFilmStyle) cardFilmHoleGap * 2 + cardFilmHoleWidth * 2
                         else 0f) >= textLayout.height
             ) {
+                val aWidth = min(textWidth, textLayout.width) + margin * 2
+
                 canvas.save()
                 canvas.translate(
-                    if (min(textWidth, textLayout.width) > right - dp16 / 2)
-                        right - dp16 / 2 - min(textWidth, textLayout.width)
-                    else max(0f, left) + dp16 / 4,
+                    if (aWidth >= right) right - aWidth
+                    else max(0f, left) + margin,
                     top + titleHeight +
-                            if (cardSimulateFilmStyle) cardFilmHoleGap * 2 + cardFilmHoleWidth
+                            if (cardSimulateFilmStyle) cardFilmHoleGap + cardFilmHoleWidth
                             else 0f
                 )
                 textLayout.draw(canvas)
                 canvas.restore()
             }
+            //vertical
             if (schedule.text.isNotEmpty() &&
                 orientation == 1 &&
                 bottom - max(0f, top) >= titleHeight + textLayout.height
             ) {
                 canvas.save()
                 canvas.translate(
-                    left + dp16 / 4 +
-                            if (cardSimulateFilmStyle) cardFilmHoleGap * 2 + cardFilmHoleWidth
+                    left + margin +
+                            if (cardSimulateFilmStyle) cardFilmHoleGap + cardFilmHoleWidth
                             else 0f,
-                    max(0f, top) + titleHeight + vertical
+                    max(0f, top) + titleHeight + margin
                 )
                 textLayout.draw(canvas)
                 canvas.restore()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
         //endregion
     }
