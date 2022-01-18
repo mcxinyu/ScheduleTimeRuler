@@ -15,6 +15,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: setup-android-tools
+        uses: maxim-lobanov/setup-android-tools@v1
+        with:
+          packages: ndk;21.0.6113669
       - name: echo info
         run: echo 'https://jitpack.io/com/github/mcxinyu/ScheduleTimeRuler/${{github.ref_name}}/ScheduleTimeRuler-${{github.ref_name}}.pom'
 #      - name: Call JitPack
