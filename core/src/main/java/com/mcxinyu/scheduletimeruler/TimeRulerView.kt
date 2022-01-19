@@ -105,11 +105,9 @@ open class TimeRulerView @JvmOverloads constructor(
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.TimeRulerView)
 
-        try {
-            val font = typedArray.getResourceId(R.styleable.TimeRulerView_trv_font, 0)
+        val font = typedArray.getResourceId(R.styleable.TimeRulerView_trv_font, 0)
+        if (font != 0) {
             typeface = ResourcesCompat.getFont(context, font)
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
 
         orientation = typedArray.getInt(R.styleable.TimeRulerView_trv_orientation, 1)

@@ -167,7 +167,13 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
 
                 val path = Path()
                 path.fillType = Path.FillType.EVEN_ODD
-                path.addRect(left, top, right, bottom, Path.Direction.CW)
+                path.addRect(
+                    max(left, 0f),
+                    max(top, 0f),
+                    min(right, width.toFloat()),
+                    min(bottom, height.toFloat()),
+                    Path.Direction.CW
+                )
 
                 if (cardSimulateFilmStyle && bottom - top > cardFilmHoleHeight) {
                     val count =
@@ -181,24 +187,26 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
                             var aTop = top + cardFilmHoleGap
                             var aBottom = aTop + cardFilmHoleWidth
 
-                            path.addRect(
-                                min(max(aLeft, left), right),
-                                aTop,
-                                min(aRight, right),
-                                aBottom,
-                                Path.Direction.CCW
-                            )
+                            if (aLeft + cardFilmHoleHeight >= 0 && aRight - cardFilmHoleHeight <= width) {
+                                path.addRect(
+                                    min(max(aLeft, left), right),
+                                    aTop,
+                                    min(aRight, right),
+                                    aBottom,
+                                    Path.Direction.CCW
+                                )
 
-                            aBottom = bottom - cardFilmHoleGap - cardFilmHoleWidth
-                            aTop = aBottom + cardFilmHoleWidth
+                                aBottom = bottom - cardFilmHoleGap - cardFilmHoleWidth
+                                aTop = aBottom + cardFilmHoleWidth
 
-                            path.addRect(
-                                min(max(aLeft, left), right),
-                                aTop,
-                                min(aRight, right),
-                                aBottom,
-                                Path.Direction.CCW
-                            )
+                                path.addRect(
+                                    min(max(aLeft, left), right),
+                                    aTop,
+                                    min(aRight, right),
+                                    aBottom,
+                                    Path.Direction.CCW
+                                )
+                            }
                         } else {
                             var aLeft = left + cardFilmHoleGap
                             var aRight = aLeft + cardFilmHoleWidth
@@ -206,24 +214,26 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
                                 top + i * cardFilmHoleHeight + cardFilmHoleOffset + i * cardFilmHoleGap
                             val aBottom = aTop + cardFilmHoleHeight
 
-                            path.addRect(
-                                aLeft,
-                                min(max(aTop, top), bottom),
-                                aRight,
-                                min(aBottom, bottom),
-                                Path.Direction.CCW
-                            )
+                            if (aTop + cardFilmHoleHeight >= 0 && aBottom - cardFilmHoleHeight <= height) {
+                                path.addRect(
+                                    aLeft,
+                                    min(max(aTop, top), bottom),
+                                    aRight,
+                                    min(aBottom, bottom),
+                                    Path.Direction.CCW
+                                )
 
-                            aLeft = right - cardFilmHoleWidth - cardFilmHoleGap
-                            aRight = aLeft + cardFilmHoleWidth
+                                aLeft = right - cardFilmHoleWidth - cardFilmHoleGap
+                                aRight = aLeft + cardFilmHoleWidth
 
-                            path.addRect(
-                                aLeft,
-                                min(max(aTop, top), bottom),
-                                aRight,
-                                min(aBottom, bottom),
-                                Path.Direction.CCW
-                            )
+                                path.addRect(
+                                    aLeft,
+                                    min(max(aTop, top), bottom),
+                                    aRight,
+                                    min(aBottom, bottom),
+                                    Path.Direction.CCW
+                                )
+                            }
                         }
                     }
                 }
@@ -231,28 +241,37 @@ open class ScheduleTimeRulerView @JvmOverloads constructor(
                 canvas.drawPath(path, textPaint)
             } else {
                 val toBitmap = it.toBitmap()
+
+                val aWidth = min(right, width.toFloat()) - max(left, 0f)
+
                 val bitmap = if (orientation == 0)
                     Bitmap.createScaledBitmap(
                         toBitmap,
-                        (toBitmap.width * (right - left) / toBitmap.height).toInt(),
+                        (toBitmap.width * aWidth / toBitmap.height).toInt(),
                         (bottom - top).toInt(),
                         true
                     )
                 else
                     Bitmap.createScaledBitmap(
                         toBitmap,
-                        (right - left).toInt(),
-                        ((right - left) * toBitmap.height / toBitmap.width).toInt(),
+                        aWidth.toInt(),
+                        (aWidth * toBitmap.height / toBitmap.width).toInt(),
                         true
                     )
 
-                val path = Path()
+//                val path = Path()
 //                path.fillType = Path.FillType.EVEN_ODD
 
                 val shader = BitmapShader(bitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
                 textPaint.shader = shader
 
-                canvas.drawRect(left, top, right, bottom, textPaint)
+                canvas.drawRect(
+                    max(left, 0f),
+                    max(top, 0f),
+                    min(right, width.toFloat()),
+                    min(bottom, height.toFloat()),
+                    textPaint
+                )
 
                 textPaint.shader = null
             }
