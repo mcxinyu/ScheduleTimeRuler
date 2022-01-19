@@ -8,7 +8,8 @@
 + 观看演示 [DEMO-VIDEO](https://www.bilibili.com/video/BV1eS4y1T7KV?share_source=copy_web)
 + 截图 
 
-<img src="art/img.png" width="256"  alt="demo"/><br/>
+<img src="art/ver.png" width="256"  alt="demo"/>
+<img src="art/hor.png" height="256"  alt="demo"/><br/>
 
 ### 使用
 
