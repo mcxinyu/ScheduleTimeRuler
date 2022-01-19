@@ -1,4 +1,5 @@
 ## ScheduleTimeRulerView
+
 [![](https://jitpack.io/v/mcxinyu/ScheduleTimeRuler.svg)](https://jitpack.io/#mcxinyu/ScheduleTimeRuler)
 [![Release CI](https://github.com/mcxinyu/ScheduleTimeRuler/actions/workflows/android.yml/badge.svg)](https://github.com/mcxinyu/ScheduleTimeRuler/actions/workflows/android.yml)
 
@@ -10,26 +11,42 @@
 <img src="art/img.png" width="256"  alt="demo"/><br/>
 
 ### 使用
+
 To get a Git project into your build:
 
 Step 1. Add the JitPack repository to your build file
 
 Add it in your root build.gradle at the end of repositories:
 
-	allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
-	}
-  
+    allprojects {
+        repositories {
+            ...
+            maven { url 'https://jitpack.io' }
+        }
+    }
+
 Step 2. Add the dependency
 
-	dependencies {
-	        implementation "com.github.mcxinyu:ScheduleTimeRuler:{last-version}"
-	}
+    dependencies {
+            implementation "com.github.mcxinyu:ScheduleTimeRuler:{last-version}"
+    }
 
 ### 组件
+
+1. 不喜欢它长得样子，支持自定义实现（你自己画哦）
+
+2. 支持横竖轴样式了
+
+3. 支持游标，也可通过回调自行显示
+
+4. 支持缩放时间轴，手势或调用代码
+
+5. 支持胶片样式的事件卡片
+
+6. 支持背景图片的事件卡片，但还不完美
+   
+   
+
 #### TimeRulerView
 
 + 时间尺
@@ -41,10 +58,12 @@ Step 2. Add the dependency
 #### ScheduleTimeRulerView
 
 + 带计划事件的缩放功能的时间尺
+  
+  
 
 ### proguard-rules.pro
 
-	此库自带混淆规则，并且会自动导入，正常情况下无需手动导入。
+    此库自带混淆规则，并自动导入，正常情况下无需手动导入。
 
 ### 参考
 
